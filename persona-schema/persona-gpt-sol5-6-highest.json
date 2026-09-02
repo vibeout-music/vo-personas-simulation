@@ -1,0 +1,387 @@
+{
+  "schema_version": "0.1.0",
+  "persona_id": "persona_000001",
+  "simulation_seed": 193741,
+
+  "stable_profile": {
+    "age": 31,
+    "life_stage": "young_adult",
+    "residence": {
+      "country": "ES",
+      "timezone": "Europe/Madrid",
+      "urbanicity": 0.65
+    },
+    "languages": [
+      {
+        "code": "es",
+        "proficiency": 1.0
+      },
+      {
+        "code": "en",
+        "proficiency": 0.7
+      }
+    ],
+    "cultural_exposure": [
+      {
+        "culture_id": "spanish_mainstream",
+        "weight": 0.75
+      },
+      {
+        "culture_id": "global_online",
+        "weight": 0.62
+      }
+    ],
+    "education_level": "university",
+    "socioeconomic_security": 0.58,
+    "chronotype": 0.72
+  },
+
+  "psychology": {
+    "big_five": {
+      "openness": 0.78,
+      "conscientiousness": 0.59,
+      "extraversion": 0.46,
+      "agreeableness": 0.68,
+      "emotional_stability": 0.52
+    },
+    "cognitive_style": {
+      "novelty_seeking": 0.73,
+      "uncertainty_tolerance": 0.64,
+      "impulsivity": 0.38,
+      "optimism": 0.57,
+      "internal_locus_of_control": 0.69,
+      "rumination_tendency": 0.61,
+      "social_conformity": 0.28
+    },
+    "emotional_dynamics": {
+      "baseline_valence": 0.12,
+      "baseline_arousal": 0.08,
+      "volatility": 0.42,
+      "inertia": 0.71,
+      "recovery_rate": 0.55,
+      "emotion_clarity": 0.63,
+      "emotion_expression": 0.47
+    },
+    "values": {
+      "achievement": 0.82,
+      "belonging": 0.66,
+      "autonomy": 0.86,
+      "security": 0.51,
+      "exploration": 0.74,
+      "social_status": 0.31,
+      "meaning": 0.78
+    },
+    "goals": [
+      {
+        "domain": "career",
+        "importance": 0.88,
+        "perceived_progress": 0.36,
+        "perceived_control": 0.62,
+        "pressure_sensitivity": 0.74
+      }
+    ],
+    "insecurities": [
+      {
+        "domain": "professional_competence",
+        "baseline_sensitivity": 0.67,
+        "coping_style": "rumination"
+      },
+      {
+        "domain": "social_acceptance",
+        "baseline_sensitivity": 0.42,
+        "coping_style": "diversion"
+      }
+    ]
+  },
+
+  "life_context": {
+    "work": {
+      "status": "employed",
+      "schedule_type": "fixed",
+      "weekly_hours": 40,
+      "autonomy": 0.48,
+      "baseline_stress": 0.56,
+      "cognitive_load": 0.72,
+      "music_allowed": true
+    },
+    "household": {
+      "living_arrangement": "shared",
+      "privacy": 0.61,
+      "background_noise": 0.38,
+      "caregiving_load": 0.12
+    },
+    "family": {
+      "closeness": 0.74,
+      "support": 0.78,
+      "baseline_tension": 0.21,
+      "music_influence": 0.43
+    },
+    "romantic_relationship": {
+      "status": "single",
+      "satisfaction": 0.55,
+      "emotional_salience": 0.58
+    },
+    "social": {
+      "network_size": 14,
+      "contact_frequency": 0.64,
+      "sense_of_belonging": 0.67,
+      "baseline_loneliness": 0.31,
+      "peer_music_influence": 0.48
+    },
+    "financial_pressure": 0.42
+  },
+
+  "music_identity": {
+    "identity_centrality": 0.83,
+    "musical_sophistication": 0.51,
+    "active_musician": false,
+    "training_years": 2,
+
+    "music_reward_sensitivity": {
+      "musical_seeking": 0.82,
+      "emotion_evocation": 0.79,
+      "mood_regulation": 0.86,
+      "social_reward": 0.46,
+      "sensory_motor": 0.72
+    },
+
+    "mood_regulation_affinity": {
+      "entertainment": 0.71,
+      "revival": 0.76,
+      "strong_sensation": 0.58,
+      "diversion": 0.68,
+      "discharge": 0.49,
+      "mental_work": 0.81,
+      "solace": 0.77
+    },
+
+    "style_dimensions": {
+      "mellow": 0.72,
+      "unpretentious": 0.31,
+      "sophisticated": 0.68,
+      "intense": 0.57,
+      "contemporary": 0.74
+    },
+
+    "genre_affinities": {
+      "indie": 0.86,
+      "electronic": 0.73,
+      "alternative_rock": 0.69,
+      "pop": 0.48,
+      "classical": 0.35
+    },
+
+    "audio_feature_preferences": {
+      "energy": {
+        "ideal": 0.64,
+        "tolerance": 0.41
+      },
+      "valence": {
+        "ideal": 0.43,
+        "tolerance": 0.57
+      },
+      "arousal": {
+        "ideal": 0.61,
+        "tolerance": 0.46
+      },
+      "danceability": {
+        "ideal": 0.56,
+        "tolerance": 0.38
+      },
+      "acousticness": {
+        "ideal": 0.39,
+        "tolerance": 0.44
+      },
+      "instrumentalness": {
+        "ideal": 0.32,
+        "tolerance": 0.51
+      },
+      "complexity": {
+        "ideal": 0.63,
+        "tolerance": 0.35
+      },
+      "intensity": {
+        "ideal": 0.66,
+        "tolerance": 0.43
+      }
+    },
+
+    "lyrics": {
+      "attention": 0.76,
+      "emotional_importance": 0.81,
+      "language_comprehension_required": 0.54,
+      "theme_affinities": {
+        "love": 0.62,
+        "loss": 0.73,
+        "identity": 0.84,
+        "ambition": 0.69,
+        "belonging": 0.58,
+        "escapism": 0.67
+      }
+    },
+
+    "discovery": {
+      "novelty_preference": 0.71,
+      "familiarity_bias": 0.54,
+      "popularity_bias": 0.22,
+      "trend_sensitivity": 0.37,
+      "artist_loyalty": 0.66,
+      "repeat_tolerance": 0.43,
+      "recommendation_trust": 0.61
+    },
+
+    "listening_functions": {
+      "background": 0.55,
+      "focus": 0.72,
+      "exercise": 0.63,
+      "relaxation": 0.81,
+      "emotion_processing": 0.86,
+      "social_connection": 0.49,
+      "identity_expression": 0.78,
+      "killing_time": 0.44
+    },
+
+    "formative_exposure": [
+      {
+        "period": "childhood",
+        "source": "family",
+        "styles": ["pop", "rock"],
+        "strength": 0.68
+      },
+      {
+        "period": "adolescence",
+        "source": "friends_and_internet",
+        "styles": ["indie", "electronic"],
+        "strength": 0.89
+      }
+    ]
+  },
+
+  "routine": {
+    "routine_strength": 0.64,
+    "average_sleep_hours": 7.1,
+    "habitual_listening_windows": [
+      {
+        "context": "commute",
+        "probability": 0.78
+      },
+      {
+        "context": "work",
+        "probability": 0.46
+      },
+      {
+        "context": "evening_relaxation",
+        "probability": 0.74
+      }
+    ]
+  },
+
+  "behaviour_parameters": {
+    "baseline_daily_listening_probability": 0.88,
+    "active_selection_probability": 0.67,
+    "background_listening_probability": 0.48,
+    "autoplay_acceptance": 0.59,
+    "skip_impatience": 0.46,
+    "completion_bias": 0.63,
+    "repeat_propensity": 0.51,
+    "explicit_feedback_propensity": 0.22,
+    "save_propensity": 0.38,
+    "sharing_propensity": 0.19,
+    "choice_consistency": 0.71,
+    "behavioural_noise": 0.24,
+    "session_duration": {
+      "distribution": "lognormal",
+      "median_minutes": 34,
+      "sigma": 0.61
+    }
+  },
+
+  "context_sensitivity": {
+    "mood": 0.83,
+    "arousal": 0.72,
+    "activity": 0.86,
+    "attention": 0.78,
+    "stress": 0.74,
+    "fatigue": 0.63,
+    "loneliness": 0.57,
+    "social_company": 0.49,
+    "time_of_day": 0.52,
+    "recent_life_events": 0.81,
+    "weather": 0.18,
+    "daylight": 0.29
+  },
+
+  "mutable_state": {
+    "timestamp": "2026-09-01T17:30:00Z",
+    "affect": {
+      "valence": -0.21,
+      "arousal": 0.34,
+      "dominance": -0.08,
+      "intensity": 0.52
+    },
+    "stress": 0.66,
+    "energy": 0.44,
+    "fatigue": 0.57,
+    "attention_capacity": 0.39,
+    "cognitive_load": 0.72,
+    "rumination": 0.61,
+    "boredom": 0.18,
+    "loneliness": 0.32,
+    "social_connectedness": 0.58,
+    "sleep": {
+      "hours_last_night": 6.4,
+      "quality": 0.51,
+      "sleep_debt": 0.42
+    },
+    "active_goal_pressure": {
+      "career": 0.76
+    },
+    "active_insecurity": {
+      "professional_competence": 0.58
+    },
+    "music_satiation": 0.27
+  },
+
+  "current_context": {
+    "timestamp": "2026-09-01T17:30:00Z",
+    "day_type": "weekday",
+    "activity": "working",
+    "location_type": "home",
+    "social_company": "alone",
+    "control_over_music": 1.0,
+    "available_attention": 0.34,
+    "available_minutes": 42,
+    "privacy": 0.83,
+    "device": "laptop",
+    "audio_output": "headphones",
+    "weather": {
+      "condition": "cloudy",
+      "temperature_c": 21,
+      "sunlight": 0.27,
+      "precipitation": 0.12
+    },
+    "recent_events": [
+      {
+        "domain": "work",
+        "valence": -0.64,
+        "intensity": 0.71,
+        "minutes_ago": 95
+      }
+    ]
+  },
+
+  "derived_listening_intent": {
+    "listen_probability": null,
+    "primary_function": null,
+    "regulation_strategy": null,
+    "target_affect": null,
+    "attention_mode": null,
+    "selection_source": null
+  },
+
+  "memory_references": {
+    "person_track_state": "person_track_state/persona_000001.jsonl",
+    "person_artist_state": "person_artist_state/persona_000001.jsonl",
+    "recent_listening_events": "events/persona_000001.jsonl"
+  }
+}

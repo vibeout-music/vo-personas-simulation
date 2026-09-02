@@ -1,0 +1,120 @@
+
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "_llm_model":"gemini-flash-3.7-high",
+  
+  "persona_id": "usr_0001",
+  
+  "demographics_and_biology": {
+    "name_alias": "Alex M.",
+    "age": 27,
+    "gender_identity": "non_binary",
+    "formative_music_years": [2010, 2018],
+    "chronotype": "night_owl",
+    "neurodivergence": {
+      "has_adhd": true,
+      "sensory_sensitivity": 0.85
+    },
+    "primary_languages": ["Spanish", "English"]
+  },
+
+  "psychology_and_mindset": {
+    "big_five": {
+      "openness": 0.88,
+      "conscientiousness": 0.45,
+      "extraversion": 0.30,
+      "agreeableness": 0.70,
+      "neuroticism": 0.82
+    },
+    "locus_of_control": "internal",
+    "coping_mechanism_style": "rumination_then_catharsis",
+    "core_ambitions": [
+      "creative_recognition",
+      "financial_independence"
+    ],
+    "core_insecurities_and_fears": [
+      "imposter_syndrome",
+      "fear_of_stagnation",
+      "social_burnout"
+    ],
+    "baseline_mood": {
+      "valence": -0.30,
+      "arousal": -0.10
+    },
+    "emotional_volatility": 0.75
+  },
+
+  "life_situation": {
+    "occupation": {
+      "job_title": "UX Designer / Freelancer",
+      "work_environment": "remote_home",
+      "daily_cognitive_load": 0.85,
+      "financial_stress_level": 0.60
+    },
+    "family_and_social": {
+      "living_situation": "living_alone",
+      "relationship_status": "recent_breakup",
+      "social_battery_capacity": 0.40,
+      "loneliness_index": 0.70
+    },
+    "daily_routine_archetype": "unstructured_creative"
+  },
+
+  "musical_dna_and_sensitivities": {
+    "core_favorite_genres": ["Indie Rock", "Midwest Emo", "Shoegaze", "Ambient Techno"],
+    "tolerated_genres": ["Neo-Soul", "Post-Punk", "Lofi Hip-Hop"],
+    "hard_disliked_genres": ["Commercial Reggaeton", "EDM Mainstage", "Heavy Metal Screaming"],
+    
+    "listening_dimension_affinity": {
+      "lyrical_importance": 0.90,
+      "acoustic_vs_electronic": 0.50,
+      "complexity_tolerance": 0.75,
+      "instrumental_openness": 0.65
+    },
+
+    "acoustic_preferences": {
+      "preferred_energy_range": [0.20, 0.60],
+      "preferred_valence_range": [0.10, 0.45],
+      "preferred_danceability_range": [0.20, 0.50],
+      "preferred_tempo_bpm": [70, 115]
+    },
+
+    "guilty_pleasures": ["2000s Teen Pop"],
+    "novelty_seeking_ratio": 0.40,
+    "frisson_sensitivity": 0.92,
+    "album_listener_vs_singles": "album_oriented"
+  },
+
+  "environmental_sensitivities": {
+    "weather_mood_impact": {
+      "rainy_day_reaction": "introspection_melancholy",
+      "sunny_day_reaction": "creative_spark",
+      "overcast_reaction": "calm_focus"
+    },
+    "preferred_listening_spaces": {
+      "headphones_anc": 0.80,
+      "car_speakers": 0.0,
+      "home_speakers": 0.20
+    }
+  },
+
+  "emotion_regulation_rules": {
+    "iso_principle_adherence": 0.85,
+    "primary_regulation_goals": [
+      "catharsis",
+      "solace",
+      "deep_focus",
+      "diversion"
+    ],
+    "mood_recovery_rate": 0.30
+  },
+
+  "telemetry_and_behavioral_heuristics": {
+    "avg_sessions_per_day": 3.5,
+    "skip_patience_seconds": 8,
+    "tolerance_consecutive_bad_songs": 2,
+    "obsessive_loop_tendency": 0.80,
+    "playlist_curation_frequency": "high"
+  }
+}
