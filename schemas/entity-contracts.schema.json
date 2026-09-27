@@ -1,0 +1,926 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vibeout.example/schemas/vo-personas-simulation/entity-contracts.schema.json",
+  "title": "VO Personas Simulation Entity Contract Catalog",
+  "description": "Architecture-level JSON Schema definitions for persistent simulation, listening, tracking, emotional history, audit, analytics, and affinity entities. These definitions describe logical records, not per-person files.",
+  "oneOf": [
+    { "$ref": "#/$defs/SimulationConfig" },
+    { "$ref": "#/$defs/SimulationInstance" },
+    { "$ref": "#/$defs/ExecutionBatch" },
+    { "$ref": "#/$defs/Checkpoint" },
+    { "$ref": "#/$defs/PersonaProfile" },
+    { "$ref": "#/$defs/PersonaStateCurrent" },
+    { "$ref": "#/$defs/PersonaSchedule" },
+    { "$ref": "#/$defs/ScheduleTemplate" },
+    { "$ref": "#/$defs/LifeEvent" },
+    { "$ref": "#/$defs/WorldState" },
+    { "$ref": "#/$defs/Artist" },
+    { "$ref": "#/$defs/Track" },
+    { "$ref": "#/$defs/PersonTrackState" },
+    { "$ref": "#/$defs/PersonArtistState" },
+    { "$ref": "#/$defs/ExposurePolicy" },
+    { "$ref": "#/$defs/ContextSnapshot" },
+    { "$ref": "#/$defs/SimulationFrame" },
+    { "$ref": "#/$defs/ListeningIntent" },
+    { "$ref": "#/$defs/ExposureSet" },
+    { "$ref": "#/$defs/CandidateEvaluation" },
+    { "$ref": "#/$defs/PlaybackSessionState" },
+    { "$ref": "#/$defs/ObservableEvent" },
+    { "$ref": "#/$defs/ListeningSession" },
+    { "$ref": "#/$defs/StateTransition" },
+    { "$ref": "#/$defs/EmotionalStateObservation" },
+    { "$ref": "#/$defs/OracleDecisionTrace" },
+    { "$ref": "#/$defs/DailyPersonaSummary" },
+    { "$ref": "#/$defs/SimulationMetrics" },
+    { "$ref": "#/$defs/SocialEdge" },
+    { "$ref": "#/$defs/AffinityCalculation" },
+    { "$ref": "#/$defs/AffinityScore" }
+  ],
+  "$defs": {
+    "Identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160
+    },
+    "Timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "UnitInterval": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "SignedUnitInterval": {
+      "type": "number",
+      "minimum": -1,
+      "maximum": 1
+    },
+    "EmotionVector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["valence", "arousal", "dominance", "intensity", "primary_label"],
+      "properties": {
+        "valence": { "$ref": "#/$defs/SignedUnitInterval" },
+        "arousal": { "$ref": "#/$defs/UnitInterval" },
+        "dominance": { "$ref": "#/$defs/UnitInterval" },
+        "intensity": { "$ref": "#/$defs/UnitInterval" },
+        "primary_label": { "type": "string" },
+        "secondary_labels": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        }
+      }
+    },
+    "ApplicationContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "device_type": { "type": "string" },
+        "operating_system": { "type": "string" },
+        "app_version": { "type": "string" },
+        "surface": { "type": "string" },
+        "request_id": { "type": ["string", "null"] },
+        "network_type": { "type": ["string", "null"] }
+      }
+    },
+    "SimulationLineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["simulation_id", "execution_id"],
+      "properties": {
+        "simulation_id": { "$ref": "#/$defs/Identifier" },
+        "execution_id": { "$ref": "#/$defs/Identifier" },
+        "decision_sequence": { "type": ["integer", "null"], "minimum": 0 }
+      }
+    },
+    "StateChange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "operation"],
+      "properties": {
+        "path": { "type": "string" },
+        "operation": { "enum": ["set", "increment", "decrement", "append", "remove"] },
+        "before": {},
+        "after": {},
+        "delta": {}
+      }
+    },
+    "ExposureItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["track_id", "position", "source", "served"],
+      "properties": {
+        "track_id": { "$ref": "#/$defs/Identifier" },
+        "position": { "type": "integer", "minimum": 0 },
+        "source": { "type": "string" },
+        "served": { "type": "boolean" },
+        "ranking_score": { "type": ["number", "null"] },
+        "reason_code": { "type": ["string", "null"] }
+      }
+    },
+    "SimulationConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "scenario_id", "config_version", "schema_version", "clock", "model_versions", "retention_policy"],
+      "properties": {
+        "entity_type": { "const": "SimulationConfig" },
+        "scenario_id": { "$ref": "#/$defs/Identifier" },
+        "config_version": { "type": "string" },
+        "schema_version": { "type": "string" },
+        "clock": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["tick_minutes", "timezone"],
+          "properties": {
+            "tick_minutes": { "type": "integer", "minimum": 1 },
+            "timezone": { "type": "string" },
+            "default_advance_minutes": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "model_versions": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "policy_versions": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "emotional_observation_policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "heartbeat_minutes": { "type": ["integer", "null"], "minimum": 1 },
+            "record_session_boundaries": { "type": "boolean" },
+            "record_life_event_boundaries": { "type": "boolean" },
+            "change_threshold": { "$ref": "#/$defs/UnitInterval" }
+          }
+        },
+        "retention_policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["audit_mode"],
+          "properties": {
+            "audit_mode": { "enum": ["lean", "standard", "forensic"] },
+            "checkpoint_interval_hours": { "type": "integer", "minimum": 1 },
+            "full_frame_persona_allowlist": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/Identifier" },
+              "uniqueItems": true
+            }
+          }
+        }
+      }
+    },
+    "SimulationInstance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "simulation_id", "scenario_id", "config_version", "status", "logical_time", "simulation_seed", "frozen_versions", "created_at"],
+      "properties": {
+        "entity_type": { "const": "SimulationInstance" },
+        "simulation_id": { "$ref": "#/$defs/Identifier" },
+        "scenario_id": { "$ref": "#/$defs/Identifier" },
+        "config_version": { "type": "string" },
+        "status": { "enum": ["initialising", "active", "paused", "completed", "failed", "archived"] },
+        "logical_time": { "$ref": "#/$defs/Timestamp" },
+        "simulation_seed": { "type": "integer" },
+        "population_id": { "$ref": "#/$defs/Identifier" },
+        "parent_simulation_id": { "type": ["string", "null"] },
+        "parent_checkpoint_id": { "type": ["string", "null"] },
+        "frozen_versions": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "created_at": { "$ref": "#/$defs/Timestamp" },
+        "updated_at": { "$ref": "#/$defs/Timestamp" }
+      }
+    },
+    "ExecutionBatch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "execution_id", "simulation_id", "status", "logical_from", "logical_to", "started_at"],
+      "properties": {
+        "entity_type": { "const": "ExecutionBatch" },
+        "execution_id": { "$ref": "#/$defs/Identifier" },
+        "simulation_id": { "$ref": "#/$defs/Identifier" },
+        "status": { "enum": ["pending", "running", "completed", "partially_failed", "failed"] },
+        "logical_from": { "$ref": "#/$defs/Timestamp" },
+        "logical_to": { "$ref": "#/$defs/Timestamp" },
+        "started_at": { "$ref": "#/$defs/Timestamp" },
+        "completed_at": { "anyOf": [{ "$ref": "#/$defs/Timestamp" }, { "type": "null" }] },
+        "attempt": { "type": "integer", "minimum": 1 },
+        "worker_version": { "type": "string" },
+        "counts": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "due": { "type": "integer", "minimum": 0 },
+            "processed": { "type": "integer", "minimum": 0 },
+            "deferred": { "type": "integer", "minimum": 0 },
+            "failed": { "type": "integer", "minimum": 0 },
+            "events_emitted": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "error_summary": { "type": ["string", "null"] }
+      }
+    },
+    "Checkpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "checkpoint_id", "simulation_id", "logical_time", "created_at", "storage_ref", "content_hash", "versions"],
+      "properties": {
+        "entity_type": { "const": "Checkpoint" },
+        "checkpoint_id": { "$ref": "#/$defs/Identifier" },
+        "simulation_id": { "$ref": "#/$defs/Identifier" },
+        "execution_id": { "$ref": "#/$defs/Identifier" },
+        "logical_time": { "$ref": "#/$defs/Timestamp" },
+        "created_at": { "$ref": "#/$defs/Timestamp" },
+        "storage_ref": { "type": "string" },
+        "content_hash": { "type": "string" },
+        "event_offsets": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "versions": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "PersonaProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "persona_id", "profile_version", "demographics", "psychology", "emotional_profile", "musical_identity", "life_context", "created_at"],
+      "properties": {
+        "entity_type": { "const": "PersonaProfile" },
+        "persona_id": { "$ref": "#/$defs/Identifier" },
+        "profile_version": { "type": "integer", "minimum": 1 },
+        "archetype_id": { "type": ["string", "null"] },
+        "demographics": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "age": { "type": "integer", "minimum": 13 },
+            "country_code": { "type": "string" },
+            "primary_language": { "type": "string" },
+            "location_id": { "$ref": "#/$defs/Identifier" },
+            "education_level": { "type": ["string", "null"] }
+          }
+        },
+        "psychology": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "personality": { "type": "object", "additionalProperties": { "$ref": "#/$defs/UnitInterval" } },
+            "emotion_regulation_preferences": { "type": "object", "additionalProperties": { "$ref": "#/$defs/UnitInterval" } },
+            "uncertainty_tolerance": { "$ref": "#/$defs/UnitInterval" },
+            "self_awareness": { "$ref": "#/$defs/UnitInterval" }
+          }
+        },
+        "emotional_profile": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "baseline": { "$ref": "#/$defs/EmotionVector" },
+            "inertia": { "$ref": "#/$defs/UnitInterval" },
+            "volatility": { "$ref": "#/$defs/UnitInterval" },
+            "music_receptiveness": { "$ref": "#/$defs/UnitInterval" },
+            "reporting_accuracy": { "$ref": "#/$defs/UnitInterval" }
+          }
+        },
+        "musical_identity": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "genre_affinities": { "type": "object", "additionalProperties": { "$ref": "#/$defs/SignedUnitInterval" } },
+            "novelty_preference": { "$ref": "#/$defs/UnitInterval" },
+            "familiarity_preference": { "$ref": "#/$defs/UnitInterval" },
+            "music_importance": { "$ref": "#/$defs/UnitInterval" },
+            "preferred_listening_functions": {
+              "type": "array",
+              "items": { "type": "string" },
+              "uniqueItems": true
+            }
+          }
+        },
+        "life_context": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "employment_status": { "type": "string" },
+            "household_type": { "type": "string" },
+            "relationship_status": { "type": "string" },
+            "financial_pressure_baseline": { "$ref": "#/$defs/UnitInterval" },
+            "family_pressure_baseline": { "$ref": "#/$defs/UnitInterval" },
+            "ambition_level": { "$ref": "#/$defs/UnitInterval" }
+          }
+        },
+        "created_at": { "$ref": "#/$defs/Timestamp" },
+        "valid_from": { "$ref": "#/$defs/Timestamp" },
+        "valid_to": { "anyOf": [{ "$ref": "#/$defs/Timestamp" }, { "type": "null" }] }
+      }
+    },
+    "PersonaStateCurrent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "simulation_id", "persona_id", "state_version", "as_of", "emotion", "energy", "fatigue", "stress", "attention", "satisfaction", "recent_emotional_features", "next_scheduled_event_at"],
+      "properties": {
+        "entity_type": { "const": "PersonaStateCurrent" },
+        "simulation_id": { "$ref": "#/$defs/Identifier" },
+        "persona_id": { "$ref": "#/$defs/Identifier" },
+        "profile_version": { "type": "integer", "minimum": 1 },
+        "state_version": { "type": "integer", "minimum": 0 },
+        "as_of": { "$ref": "#/$defs/Timestamp" },
+        "emotion": { "$ref": "#/$defs/EmotionVector" },
+        "energy": { "$ref": "#/$defs/UnitInterval" },
+        "fatigue": { "$ref": "#/$defs/UnitInterval" },
+        "stress": { "$ref": "#/$defs/UnitInterval" },
+        "attention": { "$ref": "#/$defs/UnitInterval" },
+        "satisfaction": { "$ref": "#/$defs/UnitInterval" },
+        "current_activity": { "type": "string" },
+        "active_goal_ids": { "type": "array", "items": { "$ref": "#/$defs/Identifier" }, "uniqueItems": true },
+        "active_life_event_ids": { "type": "array", "items": { "$ref": "#/$defs/Identifier" }, "uniqueItems": true },
+        "recent_emotional_features": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["valence_trend", "arousal_trend", "volatility", "state_duration_minutes"],
+          "properties": {
+            "valence_trend": { "$ref": "#/$defs/SignedUnitInterval" },
+            "arousal_trend": { "$ref": "#/$defs/SignedUnitInterval" },
+            "volatility": { "$ref": "#/$defs/UnitInterval" },
+            "state_duration_minutes": { "type": "integer", "minimum": 0 },
+            "recent_regulation_success": { "$ref": "#/$defs/UnitInterval" }
+          }
+        },
+        "last_session_id": { "type": ["string", "null"] },
+        "last_observation_at": { "anyOf": [{ "$ref": "#/$defs/Timestamp" }, { "type": "null" }] },
+        "next_scheduled_event_at": { "$ref": "#/$defs/Timestamp" }
+      }
+    },
+    "PersonaSchedule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "persona_id", "schedule_version", "schedule_template_id", "timezone", "overrides"],
+      "properties": {
+        "entity_type": { "const": "PersonaSchedule" },
+        "persona_id": { "$ref": "#/$defs/Identifier" },
+        "schedule_version": { "type": "integer", "minimum": 1 },
+        "schedule_template_id": { "$ref": "#/$defs/Identifier" },
+        "timezone": { "type": "string" },
+        "overrides": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["day", "start_local_time", "activity", "probability"],
+            "properties": {
+              "day": { "type": "string" },
+              "start_local_time": { "type": "string" },
+              "duration_minutes": { "type": "integer", "minimum": 1 },
+              "activity": { "type": "string" },
+              "probability": { "$ref": "#/$defs/UnitInterval" }
+            }
+          }
+        }
+      }
+    },
+    "ScheduleTemplate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "schedule_template_id", "template_version", "name", "activity_windows"],
+      "properties": {
+        "entity_type": { "const": "ScheduleTemplate" },
+        "schedule_template_id": { "$ref": "#/$defs/Identifier" },
+        "template_version": { "type": "integer", "minimum": 1 },
+        "name": { "type": "string" },
+        "activity_windows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["days", "start_local_time", "activity", "probability"],
+            "properties": {
+              "days": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+              "start_local_time": { "type": "string" },
+              "duration_minutes": { "type": "integer", "minimum": 1 },
+              "activity": { "type": "string" },
+              "probability": { "$ref": "#/$defs/UnitInterval" }
+            }
+          }
+        }
+      }
+    },
+    "LifeEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "life_event_id", "simulation_id", "persona_id", "event_type", "starts_at", "status", "intensity", "effects"],
+      "properties": {
+        "entity_type": { "const": "LifeEvent" },
+        "life_event_id": { "$ref": "#/$defs/Identifier" },
+        "simulation_id": { "$ref": "#/$defs/Identifier" },
+        "persona_id": { "$ref": "#/$defs/Identifier" },
+        "event_type": { "type": "string" },
+        "starts_at": { "$ref": "#/$defs/Timestamp" },
+        "ends_at": { "anyOf": [{ "$ref": "#/$defs/Timestamp" }, { "type": "null" }] },
+        "status": { "enum": ["scheduled", "active", "resolved", "cancelled"] },
+        "intensity": { "$ref": "#/$defs/UnitInterval" },
+        "effects": {
+          "type": "object",
+          "additionalProperties": { "type": "number" }
+        },
+        "source": { "enum": ["generated", "scenario", "derived"] }
+      }
+    },
+    "WorldState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "location_id", "time_bucket", "weather", "daylight", "season", "trend_context"],
+      "properties": {
+        "entity_type": { "const": "WorldState" },
+        "location_id": { "$ref": "#/$defs/Identifier" },
+        "time_bucket": { "$ref": "#/$defs/Timestamp" },
+        "weather": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "condition": { "type": "string" },
+            "temperature_c": { "type": "number" },
+            "precipitation_probability": { "$ref": "#/$defs/UnitInterval" }
+          }
+        },
+        "daylight": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "is_daylight": { "type": "boolean" },
+            "minutes_since_sunrise": { "type": ["integer", "null"] },
+            "minutes_until_sunset": { "type": ["integer", "null"] }
+          }
+        },
+        "season": { "type": "string" },
+        "holiday_id": { "type": ["string", "null"] },
+        "trend_context": { "type": "object", "additionalProperties": { "type": "number" } }
+      }
+    },
+    "Artist": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "artist_id", "artist_version", "name", "genres"],
+      "properties": {
+        "entity_type": { "const": "Artist" },
+        "artist_id": { "$ref": "#/$defs/Identifier" },
+        "artist_version": { "type": "integer", "minimum": 1 },
+        "name": { "type": "string" },
+        "genres": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "origin_country": { "type": ["string", "null"] },
+        "catalogue_popularity": { "$ref": "#/$defs/UnitInterval" }
+      }
+    },
+    "Track": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "track_id", "track_version", "artist_id", "title", "duration_ms", "genres", "audio_features", "emotion_profile", "availability"],
+      "properties": {
+        "entity_type": { "const": "Track" },
+        "track_id": { "$ref": "#/$defs/Identifier" },
+        "track_version": { "type": "integer", "minimum": 1 },
+        "artist_id": { "$ref": "#/$defs/Identifier" },
+        "title": { "type": "string" },
+        "duration_ms": { "type": "integer", "minimum": 1 },
+        "genres": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "languages": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "audio_features": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "tempo_bpm": { "type": "number", "minimum": 0 },
+            "energy": { "$ref": "#/$defs/UnitInterval" },
+            "danceability": { "$ref": "#/$defs/UnitInterval" },
+            "acousticness": { "$ref": "#/$defs/UnitInterval" },
+            "instrumentalness": { "$ref": "#/$defs/UnitInterval" }
+          }
+        },
+        "emotion_profile": { "$ref": "#/$defs/EmotionVector" },
+        "lyrical_themes": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "availability": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "active": { "type": "boolean" },
+            "market_codes": { "type": "array", "items": { "type": "string" }, "uniqueItems": true }
+          }
+        }
+      }
+    },
+    "PersonTrackState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "simulation_id", "persona_id", "track_id", "state_version", "familiarity", "learned_affinity", "satiation", "exposure_count", "play_count", "updated_at"],
+      "properties": {
+        "entity_type": { "const": "PersonTrackState" },
+        "simulation_id": { "$ref": "#/$defs/Identifier" },
+        "persona_id": { "$ref": "#/$defs/Identifier" },
+        "track_id": { "$ref": "#/$defs/Identifier" },
+        "state_version": { "type": "integer", "minimum": 1 },
+        "familiarity": { "$ref": "#/$defs/UnitInterval" },
+        "learned_affinity": { "$ref": "#/$defs/SignedUnitInterval" },
+        "satiation": { "$ref": "#/$defs/UnitInterval" },
+        "emotional_associations": { "type": "object", "additionalProperties": { "type": "number" } },
+        "exposure_count": { "type": "integer", "minimum": 0 },
+        "play_count": { "type": "integer", "minimum": 0 },
+        "skip_count": { "type": "integer", "minimum": 0 },
+        "last_exposed_at": { "anyOf": [{ "$ref": "#/$defs/Timestamp" }, { "type": "null" }] },
+        "last_played_at": { "anyOf": [{ "$ref": "#/$defs/Timestamp" }, { "type": "null" }] },
+        "updated_at": { "$ref": "#/$defs/Timestamp" }
+      }
+    },
+    "PersonArtistState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "simulation_id", "persona_id", "artist_id", "state_version", "familiarity", "learned_affinity", "loyalty", "satiation", "updated_at"],
+      "properties": {
+        "entity_type": { "const": "PersonArtistState" },
+        "simulation_id": { "$ref": "#/$defs/Identifier" },
+        "persona_id": { "$ref": "#/$defs/Identifier" },
+        "artist_id": { "$ref": "#/$defs/Identifier" },
+        "state_version": { "type": "integer", "minimum": 1 },
+        "familiarity": { "$ref": "#/$defs/UnitInterval" },
+        "learned_affinity": { "$ref": "#/$defs/SignedUnitInterval" },
+        "loyalty": { "$ref": "#/$defs/UnitInterval" },
+        "satiation": { "$ref": "#/$defs/UnitInterval" },
+        "play_count": { "type": "integer", "minimum": 0 },
+        "updated_at": { "$ref": "#/$defs/Timestamp" }
+      }
+    },
+    "ExposurePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "policy_id", "policy_version", "candidate_sources", "ranking_model_version", "max_items", "position_effects"],
+      "properties": {
+        "entity_type": { "const": "ExposurePolicy" },
+        "policy_id": { "$ref": "#/$defs/Identifier" },
+        "policy_version": { "type": "string" },
+        "candidate_sources": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "ranking_model_version": { "type": "string" },
+        "max_items": { "type": "integer", "minimum": 1 },
+        "allow_autoplay": { "type": "boolean" },
+        "position_effects": { "type": "array", "items": { "$ref": "#/$defs/UnitInterval" } },
+        "eligibility_rules": { "type": "object", "additionalProperties": true }
+      }
+    },
+    "ContextSnapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "context_id", "simulation_id", "execution_id", "persona_id", "logical_time", "activity", "location_id", "application_context", "source_refs", "context_hash"],
+      "properties": {
+        "entity_type": { "const": "ContextSnapshot" },
+        "context_id": { "$ref": "#/$defs/Identifier" },
+        "simulation_id": { "$ref": "#/$defs/Identifier" },
+        "execution_id": { "$ref": "#/$defs/Identifier" },
+        "persona_id": { "$ref": "#/$defs/Identifier" },
+        "logical_time": { "$ref": "#/$defs/Timestamp" },
+        "activity": { "type": "string" },
+        "location_id": { "$ref": "#/$defs/Identifier" },
+        "company": { "type": "string" },
+        "privacy": { "$ref": "#/$defs/UnitInterval" },
+        "available_minutes": { "type": "integer", "minimum": 0 },
+        "application_context": { "$ref": "#/$defs/ApplicationContext" },
+        "source_refs": { "type": "object", "additionalProperties": { "type": "string" } },
+        "context_hash": { "type": "string" }
+      }
+    },
+    "SimulationFrame": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "frame_id", "simulation_id", "execution_id", "persona_id", "logical_time", "profile_ref", "state_version", "context_id", "active_life_event_ids", "relevant_track_state_ids"],
+      "properties": {
+        "entity_type": { "const": "SimulationFrame" },
+        "frame_id": { "$ref": "#/$defs/Identifier" },
+        "simulation_id": { "$ref": "#/$defs/Identifier" },
+        "execution_id": { "$ref": "#/$defs/Identifier" },
+        "persona_id": { "$ref": "#/$defs/Identifier" },
+        "logical_time": { "$ref": "#/$defs/Timestamp" },
+        "profile_ref": { "type": "string" },
+        "state_version": { "type": "integer", "minimum": 0 },
+        "context_id": { "$ref": "#/$defs/Identifier" },
+        "active_life_event_ids": { "type": "array", "items": { "$ref": "#/$defs/Identifier" }, "uniqueItems": true },
+        "relevant_track_state_ids": { "type": "array", "items": { "$ref": "#/$defs/Identifier" }, "uniqueItems": true },
+        "input_hash": { "type": "string" }
+      }
+    },
+    "ListeningIntent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "intent_id", "simulation_id", "execution_id", "persona_id", "logical_time", "opportunity_available", "listen_probability", "selected_outcome", "motive", "desired_emotion"],
+      "properties": {
+        "entity_type": { "const": "ListeningIntent" },
+        "intent_id": { "$ref": "#/$defs/Identifier" },
+        "simulation_id": { "$ref": "#/$defs/Identifier" },
+        "execution_id": { "$ref": "#/$defs/Identifier" },
+        "persona_id": { "$ref": "#/$defs/Identifier" },
+        "logical_time": { "$ref": "#/$defs/Timestamp" },
+        "opportunity_available": { "type": "boolean" },
+        "listen_probability": { "$ref": "#/$defs/UnitInterval" },
+        "selected_outcome": { "enum": ["listen", "no_listen"] },
+        "motive": { "type": "string" },
+        "desired_emotion": { "$ref": "#/$defs/EmotionVector" },
+        "time_budget_minutes": { "type": "integer", "minimum": 0 },
+        "control_mode": { "enum": ["active_selection", "passive", "autoplay"] }
+      }
+    },
+    "ExposureSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "exposure_set_id", "simulation_id", "execution_id", "persona_id", "session_id", "policy_id", "created_at", "items"],
+      "properties": {
+        "entity_type": { "const": "ExposureSet" },
+        "exposure_set_id": { "$ref": "#/$defs/Identifier" },
+        "simulation_id": { "$ref": "#/$defs/Identifier" },
+        "execution_id": { "$ref": "#/$defs/Identifier" },
+        "persona_id": { "$ref": "#/$defs/Identifier" },
+        "session_id": { "$ref": "#/$defs/Identifier" },
+        "policy_id": { "$ref": "#/$defs/Identifier" },
+        "created_at": { "$ref": "#/$defs/Timestamp" },
+        "surface": { "type": "string" },
+        "items": { "type": "array", "items": { "$ref": "#/$defs/ExposureItem" } }
+      }
+    },
+    "CandidateEvaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "evaluation_id", "simulation_id", "execution_id", "persona_id", "exposure_set_id", "track_id", "utility", "choice_probability", "components", "selected"],
+      "properties": {
+        "entity_type": { "const": "CandidateEvaluation" },
+        "evaluation_id": { "$ref": "#/$defs/Identifier" },
+        "simulation_id": { "$ref": "#/$defs/Identifier" },
+        "execution_id": { "$ref": "#/$defs/Identifier" },
+        "persona_id": { "$ref": "#/$defs/Identifier" },
+        "exposure_set_id": { "$ref": "#/$defs/Identifier" },
+        "track_id": { "$ref": "#/$defs/Identifier" },
+        "utility": { "type": "number" },
+        "choice_probability": { "$ref": "#/$defs/UnitInterval" },
+        "components": { "type": "object", "additionalProperties": { "type": "number" } },
+        "selected": { "type": "boolean" }
+      }
+    },
+    "PlaybackSessionState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "simulation_id", "persona_id", "session_id", "state_version", "status", "started_at", "last_event_at", "position_ms", "queue_track_ids"],
+      "properties": {
+        "entity_type": { "const": "PlaybackSessionState" },
+        "simulation_id": { "$ref": "#/$defs/Identifier" },
+        "persona_id": { "$ref": "#/$defs/Identifier" },
+        "session_id": { "$ref": "#/$defs/Identifier" },
+        "state_version": { "type": "integer", "minimum": 1 },
+        "status": { "enum": ["active", "paused", "ended"] },
+        "current_track_id": { "type": ["string", "null"] },
+        "started_at": { "$ref": "#/$defs/Timestamp" },
+        "last_event_at": { "$ref": "#/$defs/Timestamp" },
+        "position_ms": { "type": "integer", "minimum": 0 },
+        "queue_track_ids": { "type": "array", "items": { "$ref": "#/$defs/Identifier" } },
+        "next_decision_at": { "anyOf": [{ "$ref": "#/$defs/Timestamp" }, { "type": "null" }] }
+      }
+    },
+    "ObservableEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "event_id", "event_name", "event_version", "occurred_at", "ingested_at", "actor_id", "data_origin", "idempotency_key", "application_context", "payload"],
+      "properties": {
+        "entity_type": { "const": "ObservableEvent" },
+        "event_id": { "$ref": "#/$defs/Identifier" },
+        "event_name": { "type": "string" },
+        "event_version": { "type": "integer", "minimum": 1 },
+        "occurred_at": { "$ref": "#/$defs/Timestamp" },
+        "ingested_at": { "$ref": "#/$defs/Timestamp" },
+        "actor_id": { "$ref": "#/$defs/Identifier" },
+        "session_id": { "type": ["string", "null"] },
+        "track_id": { "type": ["string", "null"] },
+        "data_origin": { "enum": ["synthetic", "real"] },
+        "idempotency_key": { "type": "string" },
+        "simulation_lineage": {
+          "anyOf": [
+            { "$ref": "#/$defs/SimulationLineage" },
+            { "type": "null" }
+          ]
+        },
+        "application_context": { "$ref": "#/$defs/ApplicationContext" },
+        "payload": { "type": "object", "additionalProperties": true }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "data_origin": { "const": "synthetic" } }, "required": ["data_origin"] },
+          "then": { "required": ["simulation_lineage"] }
+        }
+      ]
+    },
+    "ListeningSession": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "session_id", "simulation_id", "persona_id", "status", "started_at", "source_surface", "event_count", "track_count", "listened_ms"],
+      "properties": {
+        "entity_type": { "const": "ListeningSession" },
+        "session_id": { "$ref": "#/$defs/Identifier" },
+        "simulation_id": { "$ref": "#/$defs/Identifier" },
+        "persona_id": { "$ref": "#/$defs/Identifier" },
+        "status": { "enum": ["active", "completed", "abandoned", "failed"] },
+        "started_at": { "$ref": "#/$defs/Timestamp" },
+        "ended_at": { "anyOf": [{ "$ref": "#/$defs/Timestamp" }, { "type": "null" }] },
+        "source_surface": { "type": "string" },
+        "primary_intent": { "type": ["string", "null"] },
+        "event_count": { "type": "integer", "minimum": 0 },
+        "track_count": { "type": "integer", "minimum": 0 },
+        "listened_ms": { "type": "integer", "minimum": 0 },
+        "completion_reason": { "type": ["string", "null"] }
+      }
+    },
+    "StateTransition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "transition_id", "simulation_id", "execution_id", "persona_id", "occurred_at", "previous_state_version", "resulting_state_version", "cause", "changes", "model_version", "idempotency_key"],
+      "properties": {
+        "entity_type": { "const": "StateTransition" },
+        "transition_id": { "$ref": "#/$defs/Identifier" },
+        "simulation_id": { "$ref": "#/$defs/Identifier" },
+        "execution_id": { "$ref": "#/$defs/Identifier" },
+        "persona_id": { "$ref": "#/$defs/Identifier" },
+        "occurred_at": { "$ref": "#/$defs/Timestamp" },
+        "previous_state_version": { "type": "integer", "minimum": 0 },
+        "resulting_state_version": { "type": "integer", "minimum": 1 },
+        "cause": { "type": "string" },
+        "source_refs": { "type": "object", "additionalProperties": { "type": "string" } },
+        "changes": { "type": "array", "items": { "$ref": "#/$defs/StateChange" }, "minItems": 1 },
+        "model_version": { "type": "string" },
+        "idempotency_key": { "type": "string" }
+      }
+    },
+    "EmotionalStateObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "observation_id", "simulation_id", "execution_id", "persona_id", "observed_at", "observation_reason", "emotion", "energy", "stress", "fatigue", "state_version", "projection_version", "idempotency_key"],
+      "properties": {
+        "entity_type": { "const": "EmotionalStateObservation" },
+        "observation_id": { "$ref": "#/$defs/Identifier" },
+        "simulation_id": { "$ref": "#/$defs/Identifier" },
+        "execution_id": { "$ref": "#/$defs/Identifier" },
+        "persona_id": { "$ref": "#/$defs/Identifier" },
+        "observed_at": { "$ref": "#/$defs/Timestamp" },
+        "observation_reason": { "enum": ["heartbeat", "state_threshold", "session_start", "session_end", "life_event_boundary", "mood_check_in", "forensic"] },
+        "emotion": { "$ref": "#/$defs/EmotionVector" },
+        "energy": { "$ref": "#/$defs/UnitInterval" },
+        "stress": { "$ref": "#/$defs/UnitInterval" },
+        "fatigue": { "$ref": "#/$defs/UnitInterval" },
+        "activity": { "type": ["string", "null"] },
+        "location_id": { "type": ["string", "null"] },
+        "state_version": { "type": "integer", "minimum": 0 },
+        "source_transition_id": { "type": ["string", "null"] },
+        "source_event_id": { "type": ["string", "null"] },
+        "projection_version": { "type": "string" },
+        "idempotency_key": { "type": "string" }
+      }
+    },
+    "OracleDecisionTrace": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "trace_id", "simulation_id", "execution_id", "persona_id", "decision_type", "decided_at", "model_version", "random_stream", "selected_outcome", "audit_level"],
+      "properties": {
+        "entity_type": { "const": "OracleDecisionTrace" },
+        "trace_id": { "$ref": "#/$defs/Identifier" },
+        "simulation_id": { "$ref": "#/$defs/Identifier" },
+        "execution_id": { "$ref": "#/$defs/Identifier" },
+        "persona_id": { "$ref": "#/$defs/Identifier" },
+        "decision_type": { "type": "string" },
+        "decided_at": { "$ref": "#/$defs/Timestamp" },
+        "frame_id": { "type": ["string", "null"] },
+        "model_version": { "type": "string" },
+        "random_stream": { "type": "string" },
+        "random_draw": { "type": ["number", "null"] },
+        "selected_outcome": {},
+        "latent_motive": { "type": ["string", "null"] },
+        "utility_summary": { "type": "object", "additionalProperties": { "type": "number" } },
+        "audit_level": { "enum": ["minimal", "compact", "full"] }
+      }
+    },
+    "DailyPersonaSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "simulation_id", "persona_id", "local_date", "summary_version", "listening", "emotion", "generated_at"],
+      "properties": {
+        "entity_type": { "const": "DailyPersonaSummary" },
+        "simulation_id": { "$ref": "#/$defs/Identifier" },
+        "persona_id": { "$ref": "#/$defs/Identifier" },
+        "local_date": { "type": "string", "format": "date" },
+        "summary_version": { "type": "string" },
+        "listening": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "session_count": { "type": "integer", "minimum": 0 },
+            "track_count": { "type": "integer", "minimum": 0 },
+            "listened_ms": { "type": "integer", "minimum": 0 },
+            "skip_count": { "type": "integer", "minimum": 0 },
+            "unique_artist_count": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "emotion": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "mean_valence": { "$ref": "#/$defs/SignedUnitInterval" },
+            "mean_arousal": { "$ref": "#/$defs/UnitInterval" },
+            "volatility": { "$ref": "#/$defs/UnitInterval" },
+            "observation_count": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "generated_at": { "$ref": "#/$defs/Timestamp" }
+      }
+    },
+    "SimulationMetrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "metric_set_id", "simulation_id", "scope", "window_start", "window_end", "definition_version", "metrics", "generated_at"],
+      "properties": {
+        "entity_type": { "const": "SimulationMetrics" },
+        "metric_set_id": { "$ref": "#/$defs/Identifier" },
+        "simulation_id": { "$ref": "#/$defs/Identifier" },
+        "scope": { "enum": ["persona", "cohort", "simulation", "execution"] },
+        "scope_id": { "type": ["string", "null"] },
+        "window_start": { "$ref": "#/$defs/Timestamp" },
+        "window_end": { "$ref": "#/$defs/Timestamp" },
+        "definition_version": { "type": "string" },
+        "data_origin": { "enum": ["synthetic", "real", "mixed"] },
+        "metrics": { "type": "object", "additionalProperties": { "type": ["number", "integer", "null"] } },
+        "generated_at": { "$ref": "#/$defs/Timestamp" }
+      }
+    },
+    "SocialEdge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "social_edge_id", "simulation_id", "source_persona_id", "target_persona_id", "relationship_type", "direction", "strength", "trust", "interaction_count", "valid_from", "edge_version"],
+      "properties": {
+        "entity_type": { "const": "SocialEdge" },
+        "social_edge_id": { "$ref": "#/$defs/Identifier" },
+        "simulation_id": { "$ref": "#/$defs/Identifier" },
+        "source_persona_id": { "$ref": "#/$defs/Identifier" },
+        "target_persona_id": { "$ref": "#/$defs/Identifier" },
+        "relationship_type": { "type": "string" },
+        "direction": { "enum": ["directed", "undirected"] },
+        "strength": { "$ref": "#/$defs/UnitInterval" },
+        "trust": { "$ref": "#/$defs/UnitInterval" },
+        "interaction_count": { "type": "integer", "minimum": 0 },
+        "last_interaction_at": { "anyOf": [{ "$ref": "#/$defs/Timestamp" }, { "type": "null" }] },
+        "valid_from": { "$ref": "#/$defs/Timestamp" },
+        "valid_to": { "anyOf": [{ "$ref": "#/$defs/Timestamp" }, { "type": "null" }] },
+        "edge_version": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "AffinityCalculation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "affinity_calculation_id", "simulation_id", "status", "model_version", "feature_definition_version", "window_start", "window_end", "candidate_policy", "started_at"],
+      "properties": {
+        "entity_type": { "const": "AffinityCalculation" },
+        "affinity_calculation_id": { "$ref": "#/$defs/Identifier" },
+        "simulation_id": { "$ref": "#/$defs/Identifier" },
+        "status": { "enum": ["pending", "running", "completed", "failed"] },
+        "model_version": { "type": "string" },
+        "feature_definition_version": { "type": "string" },
+        "window_start": { "$ref": "#/$defs/Timestamp" },
+        "window_end": { "$ref": "#/$defs/Timestamp" },
+        "candidate_policy": { "type": "object", "additionalProperties": true },
+        "input_fingerprint": { "type": "string" },
+        "started_at": { "$ref": "#/$defs/Timestamp" },
+        "completed_at": { "anyOf": [{ "$ref": "#/$defs/Timestamp" }, { "type": "null" }] },
+        "pair_count": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "AffinityScore": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "affinity_score_id", "affinity_calculation_id", "simulation_id", "source_persona_id", "target_persona_id", "overall_score", "dimensions", "coverage", "calculated_at"],
+      "properties": {
+        "entity_type": { "const": "AffinityScore" },
+        "affinity_score_id": { "$ref": "#/$defs/Identifier" },
+        "affinity_calculation_id": { "$ref": "#/$defs/Identifier" },
+        "simulation_id": { "$ref": "#/$defs/Identifier" },
+        "source_persona_id": { "$ref": "#/$defs/Identifier" },
+        "target_persona_id": { "$ref": "#/$defs/Identifier" },
+        "overall_score": { "$ref": "#/$defs/UnitInterval" },
+        "dimensions": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "musical": { "$ref": "#/$defs/UnitInterval" },
+            "emotional_pattern": { "$ref": "#/$defs/UnitInterval" },
+            "behavioural_rhythm": { "$ref": "#/$defs/UnitInterval" },
+            "social_context": { "$ref": "#/$defs/UnitInterval" }
+          }
+        },
+        "coverage": { "$ref": "#/$defs/UnitInterval" },
+        "feature_refs": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "calculated_at": { "$ref": "#/$defs/Timestamp" }
+      }
+    }
+  }
+}

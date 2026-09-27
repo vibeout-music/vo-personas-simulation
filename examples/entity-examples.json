@@ -1,0 +1,684 @@
+{
+  "catalog_version": "2.0",
+  "description": "Representative examples for every logical entity in the VO Personas Simulation architecture. These examples illustrate contracts and are not intended to be stored as one file per persona.",
+  "schema_catalog": "../schemas/entity-contracts.schema.json",
+  "examples": {
+    "SimulationConfig": {
+      "entity_type": "SimulationConfig",
+      "scenario_id": "scenario_everyday_listening_v1",
+      "config_version": "2.0.0",
+      "schema_version": "2.0.0",
+      "clock": {
+        "tick_minutes": 15,
+        "timezone": "UTC",
+        "default_advance_minutes": 60
+      },
+      "model_versions": {
+        "state_transition": "1.0.0",
+        "listening_intent": "1.0.0",
+        "track_choice": "1.0.0",
+        "playback": "1.0.0"
+      },
+      "policy_versions": {
+        "exposure": "policy_default_v1"
+      },
+      "emotional_observation_policy": {
+        "heartbeat_minutes": 60,
+        "record_session_boundaries": true,
+        "record_life_event_boundaries": true,
+        "change_threshold": 0.15
+      },
+      "retention_policy": {
+        "audit_mode": "standard",
+        "checkpoint_interval_hours": 24,
+        "full_frame_persona_allowlist": ["persona_000042"]
+      }
+    },
+    "SimulationInstance": {
+      "entity_type": "SimulationInstance",
+      "simulation_id": "sim_2026_09_main",
+      "scenario_id": "scenario_everyday_listening_v1",
+      "config_version": "2.0.0",
+      "status": "active",
+      "logical_time": "2026-09-03T08:00:00Z",
+      "simulation_seed": 734921,
+      "population_id": "population_20k_v1",
+      "parent_simulation_id": null,
+      "parent_checkpoint_id": null,
+      "frozen_versions": {
+        "schema": "2.0.0",
+        "catalogue": "catalogue_2026_09_01",
+        "exposure_policy": "policy_default_v1"
+      },
+      "created_at": "2026-09-01T00:00:00Z",
+      "updated_at": "2026-09-03T08:00:00Z"
+    },
+    "ExecutionBatch": {
+      "entity_type": "ExecutionBatch",
+      "execution_id": "exec_2026_09_03_0800",
+      "simulation_id": "sim_2026_09_main",
+      "status": "completed",
+      "logical_from": "2026-09-03T07:00:00Z",
+      "logical_to": "2026-09-03T08:00:00Z",
+      "started_at": "2026-09-03T08:00:02Z",
+      "completed_at": "2026-09-03T08:00:19Z",
+      "attempt": 1,
+      "worker_version": "simulator_0.1.0",
+      "counts": {
+        "due": 4821,
+        "processed": 4821,
+        "deferred": 0,
+        "failed": 0,
+        "events_emitted": 9460
+      },
+      "error_summary": null
+    },
+    "Checkpoint": {
+      "entity_type": "Checkpoint",
+      "checkpoint_id": "checkpoint_2026_09_03_0000",
+      "simulation_id": "sim_2026_09_main",
+      "execution_id": "exec_2026_09_03_0000",
+      "logical_time": "2026-09-03T00:00:00Z",
+      "created_at": "2026-09-03T00:00:20Z",
+      "storage_ref": "checkpoints/sim_2026_09_main/2026-09-03T00-00-00Z",
+      "content_hash": "sha256:93c4example",
+      "event_offsets": {
+        "observable_events": 980421,
+        "state_transitions": 521904
+      },
+      "versions": {
+        "schema": "2.0.0",
+        "state_model": "1.0.0"
+      }
+    },
+    "PersonaProfile": {
+      "entity_type": "PersonaProfile",
+      "persona_id": "persona_000042",
+      "profile_version": 1,
+      "archetype_id": "emotion_regulator_explorer",
+      "demographics": {
+        "age": 29,
+        "country_code": "ES",
+        "primary_language": "es",
+        "location_id": "location_barcelona",
+        "education_level": "university"
+      },
+      "psychology": {
+        "personality": {
+          "openness": 0.81,
+          "conscientiousness": 0.62,
+          "extraversion": 0.55,
+          "agreeableness": 0.73,
+          "emotional_stability": 0.48
+        },
+        "emotion_regulation_preferences": {
+          "reappraisal": 0.72,
+          "distraction": 0.46,
+          "mood_matching": 0.61
+        },
+        "uncertainty_tolerance": 0.67,
+        "self_awareness": 0.74
+      },
+      "emotional_profile": {
+        "baseline": {
+          "valence": 0.18,
+          "arousal": 0.52,
+          "dominance": 0.63,
+          "intensity": 0.44,
+          "primary_label": "calm",
+          "secondary_labels": ["hopeful"]
+        },
+        "inertia": 0.66,
+        "volatility": 0.42,
+        "music_receptiveness": 0.84,
+        "reporting_accuracy": 0.71
+      },
+      "musical_identity": {
+        "genre_affinities": {
+          "indie_pop": 0.82,
+          "electronic": 0.68,
+          "reggaeton": -0.15
+        },
+        "novelty_preference": 0.69,
+        "familiarity_preference": 0.58,
+        "music_importance": 0.91,
+        "preferred_listening_functions": ["emotion_regulation", "focus", "discovery"]
+      },
+      "life_context": {
+        "employment_status": "employed",
+        "household_type": "shared_household",
+        "relationship_status": "single",
+        "financial_pressure_baseline": 0.38,
+        "family_pressure_baseline": 0.27,
+        "ambition_level": 0.82
+      },
+      "created_at": "2026-09-01T00:00:00Z",
+      "valid_from": "2026-09-01T00:00:00Z",
+      "valid_to": null
+    },
+    "PersonaStateCurrent": {
+      "entity_type": "PersonaStateCurrent",
+      "simulation_id": "sim_2026_09_main",
+      "persona_id": "persona_000042",
+      "profile_version": 1,
+      "state_version": 193,
+      "as_of": "2026-09-03T08:00:00Z",
+      "emotion": {
+        "valence": -0.12,
+        "arousal": 0.67,
+        "dominance": 0.42,
+        "intensity": 0.58,
+        "primary_label": "stressed",
+        "secondary_labels": ["restless"]
+      },
+      "energy": 0.61,
+      "fatigue": 0.39,
+      "stress": 0.72,
+      "attention": 0.56,
+      "satisfaction": 0.47,
+      "current_activity": "commuting",
+      "active_goal_ids": ["goal_finish_project"],
+      "active_life_event_ids": ["life_event_deadline_42"],
+      "recent_emotional_features": {
+        "valence_trend": -0.21,
+        "arousal_trend": 0.18,
+        "volatility": 0.34,
+        "state_duration_minutes": 75,
+        "recent_regulation_success": 0.57
+      },
+      "last_session_id": "session_0042_318",
+      "last_observation_at": "2026-09-03T07:00:00Z",
+      "next_scheduled_event_at": "2026-09-03T08:15:00Z"
+    },
+    "PersonaSchedule": {
+      "entity_type": "PersonaSchedule",
+      "persona_id": "persona_000042",
+      "schedule_version": 1,
+      "schedule_template_id": "schedule_office_weekday_v1",
+      "timezone": "Europe/Madrid",
+      "overrides": [
+        {
+          "day": "friday",
+          "start_local_time": "18:30",
+          "duration_minutes": 90,
+          "activity": "exercise",
+          "probability": 0.7
+        }
+      ]
+    },
+    "ScheduleTemplate": {
+      "entity_type": "ScheduleTemplate",
+      "schedule_template_id": "schedule_office_weekday_v1",
+      "template_version": 1,
+      "name": "Office weekday",
+      "activity_windows": [
+        {
+          "days": ["monday", "tuesday", "wednesday", "thursday", "friday"],
+          "start_local_time": "08:00",
+          "duration_minutes": 45,
+          "activity": "commuting",
+          "probability": 0.85
+        }
+      ]
+    },
+    "LifeEvent": {
+      "entity_type": "LifeEvent",
+      "life_event_id": "life_event_deadline_42",
+      "simulation_id": "sim_2026_09_main",
+      "persona_id": "persona_000042",
+      "event_type": "work_deadline",
+      "starts_at": "2026-09-02T09:00:00Z",
+      "ends_at": "2026-09-04T16:00:00Z",
+      "status": "active",
+      "intensity": 0.74,
+      "effects": {
+        "stress": 0.22,
+        "attention": -0.08,
+        "valence": -0.12
+      },
+      "source": "generated"
+    },
+    "WorldState": {
+      "entity_type": "WorldState",
+      "location_id": "location_barcelona",
+      "time_bucket": "2026-09-03T08:00:00Z",
+      "weather": {
+        "condition": "cloudy",
+        "temperature_c": 23.5,
+        "precipitation_probability": 0.28
+      },
+      "daylight": {
+        "is_daylight": true,
+        "minutes_since_sunrise": 115,
+        "minutes_until_sunset": 640
+      },
+      "season": "late_summer",
+      "holiday_id": null,
+      "trend_context": {
+        "festival_activity": 0.2,
+        "new_release_intensity": 0.65
+      }
+    },
+    "Artist": {
+      "entity_type": "Artist",
+      "artist_id": "artist_aurora_lines",
+      "artist_version": 1,
+      "name": "Aurora Lines",
+      "genres": ["indie_pop", "electronic"],
+      "origin_country": "ES",
+      "catalogue_popularity": 0.64
+    },
+    "Track": {
+      "entity_type": "Track",
+      "track_id": "track_city_lights",
+      "track_version": 1,
+      "artist_id": "artist_aurora_lines",
+      "title": "City Lights",
+      "duration_ms": 218000,
+      "genres": ["indie_pop", "electronic"],
+      "languages": ["en"],
+      "audio_features": {
+        "tempo_bpm": 118,
+        "energy": 0.71,
+        "danceability": 0.68,
+        "acousticness": 0.14,
+        "instrumentalness": 0.08
+      },
+      "emotion_profile": {
+        "valence": 0.44,
+        "arousal": 0.72,
+        "dominance": 0.61,
+        "intensity": 0.66,
+        "primary_label": "uplifting",
+        "secondary_labels": ["nostalgic"]
+      },
+      "lyrical_themes": ["change", "urban_life", "hope"],
+      "availability": {
+        "active": true,
+        "market_codes": ["ES", "GB", "US"]
+      }
+    },
+    "PersonTrackState": {
+      "entity_type": "PersonTrackState",
+      "simulation_id": "sim_2026_09_main",
+      "persona_id": "persona_000042",
+      "track_id": "track_city_lights",
+      "state_version": 8,
+      "familiarity": 0.73,
+      "learned_affinity": 0.81,
+      "satiation": 0.19,
+      "emotional_associations": {
+        "hopeful": 0.62,
+        "focused": 0.31
+      },
+      "exposure_count": 11,
+      "play_count": 7,
+      "skip_count": 1,
+      "last_exposed_at": "2026-09-03T08:02:00Z",
+      "last_played_at": "2026-09-02T17:35:00Z",
+      "updated_at": "2026-09-03T08:02:00Z"
+    },
+    "PersonArtistState": {
+      "entity_type": "PersonArtistState",
+      "simulation_id": "sim_2026_09_main",
+      "persona_id": "persona_000042",
+      "artist_id": "artist_aurora_lines",
+      "state_version": 12,
+      "familiarity": 0.79,
+      "learned_affinity": 0.76,
+      "loyalty": 0.63,
+      "satiation": 0.22,
+      "play_count": 19,
+      "updated_at": "2026-09-03T08:02:00Z"
+    },
+    "ExposurePolicy": {
+      "entity_type": "ExposurePolicy",
+      "policy_id": "policy_default_v1",
+      "policy_version": "1.0.0",
+      "candidate_sources": ["personalised_recommendation", "trending", "recently_played"],
+      "ranking_model_version": "ranker_1.0.0",
+      "max_items": 20,
+      "allow_autoplay": true,
+      "position_effects": [1.0, 0.92, 0.85, 0.78, 0.72],
+      "eligibility_rules": {
+        "market_availability_required": true,
+        "exclude_recent_skips_hours": 24
+      }
+    },
+    "ContextSnapshot": {
+      "entity_type": "ContextSnapshot",
+      "context_id": "context_42_20260903_0800",
+      "simulation_id": "sim_2026_09_main",
+      "execution_id": "exec_2026_09_03_0800",
+      "persona_id": "persona_000042",
+      "logical_time": "2026-09-03T08:00:00Z",
+      "activity": "commuting",
+      "location_id": "location_barcelona",
+      "company": "alone",
+      "privacy": 0.82,
+      "available_minutes": 32,
+      "application_context": {
+        "device_type": "mobile",
+        "operating_system": "ios",
+        "app_version": "0.8.0",
+        "surface": "home_recommendations",
+        "request_id": "req_8f42",
+        "network_type": "5g"
+      },
+      "source_refs": {
+        "world_state": "location_barcelona@2026-09-03T08:00:00Z",
+        "schedule": "persona_000042@1"
+      },
+      "context_hash": "sha256:context-example"
+    },
+    "SimulationFrame": {
+      "entity_type": "SimulationFrame",
+      "frame_id": "frame_42_193",
+      "simulation_id": "sim_2026_09_main",
+      "execution_id": "exec_2026_09_03_0800",
+      "persona_id": "persona_000042",
+      "logical_time": "2026-09-03T08:00:00Z",
+      "profile_ref": "persona_000042@1",
+      "state_version": 193,
+      "context_id": "context_42_20260903_0800",
+      "active_life_event_ids": ["life_event_deadline_42"],
+      "relevant_track_state_ids": ["persona_000042:track_city_lights"],
+      "input_hash": "sha256:frame-example"
+    },
+    "ListeningIntent": {
+      "entity_type": "ListeningIntent",
+      "intent_id": "intent_42_319",
+      "simulation_id": "sim_2026_09_main",
+      "execution_id": "exec_2026_09_03_0800",
+      "persona_id": "persona_000042",
+      "logical_time": "2026-09-03T08:01:00Z",
+      "opportunity_available": true,
+      "listen_probability": 0.82,
+      "selected_outcome": "listen",
+      "motive": "emotion_regulation",
+      "desired_emotion": {
+        "valence": 0.35,
+        "arousal": 0.58,
+        "dominance": 0.62,
+        "intensity": 0.46,
+        "primary_label": "focused",
+        "secondary_labels": ["hopeful"]
+      },
+      "time_budget_minutes": 30,
+      "control_mode": "active_selection"
+    },
+    "ExposureSet": {
+      "entity_type": "ExposureSet",
+      "exposure_set_id": "exposure_set_42_319",
+      "simulation_id": "sim_2026_09_main",
+      "execution_id": "exec_2026_09_03_0800",
+      "persona_id": "persona_000042",
+      "session_id": "session_0042_319",
+      "policy_id": "policy_default_v1",
+      "created_at": "2026-09-03T08:01:02Z",
+      "surface": "home_recommendations",
+      "items": [
+        {
+          "track_id": "track_city_lights",
+          "position": 0,
+          "source": "personalised_recommendation",
+          "served": true,
+          "ranking_score": 0.88,
+          "reason_code": "mood_and_history"
+        }
+      ]
+    },
+    "CandidateEvaluation": {
+      "entity_type": "CandidateEvaluation",
+      "evaluation_id": "candidate_eval_42_319_0",
+      "simulation_id": "sim_2026_09_main",
+      "execution_id": "exec_2026_09_03_0800",
+      "persona_id": "persona_000042",
+      "exposure_set_id": "exposure_set_42_319",
+      "track_id": "track_city_lights",
+      "utility": 1.74,
+      "choice_probability": 0.61,
+      "components": {
+        "intrinsic_affinity": 0.81,
+        "desired_emotion_match": 0.66,
+        "familiarity": 0.42,
+        "satiation_penalty": -0.19,
+        "position_effect": 0.04
+      },
+      "selected": true
+    },
+    "PlaybackSessionState": {
+      "entity_type": "PlaybackSessionState",
+      "simulation_id": "sim_2026_09_main",
+      "persona_id": "persona_000042",
+      "session_id": "session_0042_319",
+      "state_version": 2,
+      "status": "active",
+      "current_track_id": "track_city_lights",
+      "started_at": "2026-09-03T08:01:10Z",
+      "last_event_at": "2026-09-03T08:01:10Z",
+      "position_ms": 0,
+      "queue_track_ids": ["track_city_lights", "track_open_water"],
+      "next_decision_at": "2026-09-03T08:01:40Z"
+    },
+    "ObservableEvent": {
+      "entity_type": "ObservableEvent",
+      "event_id": "event_42_319_track_started",
+      "event_name": "track_started",
+      "event_version": 1,
+      "occurred_at": "2026-09-03T08:01:10Z",
+      "ingested_at": "2026-09-03T08:01:10Z",
+      "actor_id": "persona_000042",
+      "session_id": "session_0042_319",
+      "track_id": "track_city_lights",
+      "data_origin": "synthetic",
+      "idempotency_key": "sim_2026_09_main:42:319:track_started:1",
+      "simulation_lineage": {
+        "simulation_id": "sim_2026_09_main",
+        "execution_id": "exec_2026_09_03_0800",
+        "decision_sequence": 319
+      },
+      "application_context": {
+        "device_type": "mobile",
+        "operating_system": "ios",
+        "app_version": "0.8.0",
+        "surface": "home_recommendations",
+        "request_id": "req_8f42",
+        "network_type": "5g"
+      },
+      "payload": {
+        "source": "personalised_recommendation",
+        "position": 0,
+        "autoplay": false,
+        "initial_position_ms": 0
+      }
+    },
+    "ListeningSession": {
+      "entity_type": "ListeningSession",
+      "session_id": "session_0042_319",
+      "simulation_id": "sim_2026_09_main",
+      "persona_id": "persona_000042",
+      "status": "completed",
+      "started_at": "2026-09-03T08:01:05Z",
+      "ended_at": "2026-09-03T08:29:48Z",
+      "source_surface": "home_recommendations",
+      "primary_intent": "emotion_regulation",
+      "event_count": 14,
+      "track_count": 7,
+      "listened_ms": 1562000,
+      "completion_reason": "commute_ended"
+    },
+    "StateTransition": {
+      "entity_type": "StateTransition",
+      "transition_id": "transition_42_193_194",
+      "simulation_id": "sim_2026_09_main",
+      "execution_id": "exec_2026_09_03_0800",
+      "persona_id": "persona_000042",
+      "occurred_at": "2026-09-03T08:00:00Z",
+      "previous_state_version": 193,
+      "resulting_state_version": 194,
+      "cause": "pre_listening_time_evolution",
+      "source_refs": {
+        "context_id": "context_42_20260903_0800",
+        "life_event_id": "life_event_deadline_42"
+      },
+      "changes": [
+        {
+          "path": "emotion.valence",
+          "operation": "increment",
+          "before": -0.12,
+          "after": -0.09,
+          "delta": 0.03
+        },
+        {
+          "path": "stress",
+          "operation": "increment",
+          "before": 0.72,
+          "after": 0.75,
+          "delta": 0.03
+        }
+      ],
+      "model_version": "state_transition_1.0.0",
+      "idempotency_key": "sim_2026_09_main:42:193:194"
+    },
+    "EmotionalStateObservation": {
+      "entity_type": "EmotionalStateObservation",
+      "observation_id": "emotion_obs_42_20260903_0800",
+      "simulation_id": "sim_2026_09_main",
+      "execution_id": "exec_2026_09_03_0800",
+      "persona_id": "persona_000042",
+      "observed_at": "2026-09-03T08:00:00Z",
+      "observation_reason": "heartbeat",
+      "emotion": {
+        "valence": -0.09,
+        "arousal": 0.68,
+        "dominance": 0.42,
+        "intensity": 0.59,
+        "primary_label": "stressed",
+        "secondary_labels": ["restless"]
+      },
+      "energy": 0.61,
+      "stress": 0.75,
+      "fatigue": 0.39,
+      "activity": "commuting",
+      "location_id": "location_barcelona",
+      "state_version": 194,
+      "source_transition_id": "transition_42_193_194",
+      "source_event_id": null,
+      "projection_version": "emotion_projection_1.0.0",
+      "idempotency_key": "sim_2026_09_main:42:20260903T0800:heartbeat"
+    },
+    "OracleDecisionTrace": {
+      "entity_type": "OracleDecisionTrace",
+      "trace_id": "oracle_choice_42_319",
+      "simulation_id": "sim_2026_09_main",
+      "execution_id": "exec_2026_09_03_0800",
+      "persona_id": "persona_000042",
+      "decision_type": "track_choice",
+      "decided_at": "2026-09-03T08:01:09Z",
+      "frame_id": "frame_42_193",
+      "model_version": "track_choice_1.0.0",
+      "random_stream": "track_choice",
+      "random_draw": 0.4172,
+      "selected_outcome": "track_city_lights",
+      "latent_motive": "emotion_regulation",
+      "utility_summary": {
+        "selected_utility": 1.74,
+        "no_action_utility": 0.21
+      },
+      "audit_level": "compact"
+    },
+    "DailyPersonaSummary": {
+      "entity_type": "DailyPersonaSummary",
+      "simulation_id": "sim_2026_09_main",
+      "persona_id": "persona_000042",
+      "local_date": "2026-09-03",
+      "summary_version": "daily_summary_1.0.0",
+      "listening": {
+        "session_count": 3,
+        "track_count": 24,
+        "listened_ms": 4820000,
+        "skip_count": 5,
+        "unique_artist_count": 16
+      },
+      "emotion": {
+        "mean_valence": 0.08,
+        "mean_arousal": 0.57,
+        "volatility": 0.31,
+        "observation_count": 29
+      },
+      "generated_at": "2026-09-04T00:10:00Z"
+    },
+    "SimulationMetrics": {
+      "entity_type": "SimulationMetrics",
+      "metric_set_id": "metrics_sim_20260903",
+      "simulation_id": "sim_2026_09_main",
+      "scope": "simulation",
+      "scope_id": null,
+      "window_start": "2026-09-03T00:00:00Z",
+      "window_end": "2026-09-04T00:00:00Z",
+      "definition_version": "metrics_1.0.0",
+      "data_origin": "synthetic",
+      "metrics": {
+        "active_personas": 15742,
+        "sessions": 32819,
+        "mean_session_minutes": 24.7,
+        "skip_rate": 0.19,
+        "mean_emotional_volatility": 0.34
+      },
+      "generated_at": "2026-09-04T00:15:00Z"
+    },
+    "SocialEdge": {
+      "entity_type": "SocialEdge",
+      "social_edge_id": "social_edge_42_107",
+      "simulation_id": "sim_2026_09_main",
+      "source_persona_id": "persona_000042",
+      "target_persona_id": "persona_000107",
+      "relationship_type": "friend",
+      "direction": "undirected",
+      "strength": 0.68,
+      "trust": 0.74,
+      "interaction_count": 18,
+      "last_interaction_at": "2026-09-02T20:14:00Z",
+      "valid_from": "2026-09-01T00:00:00Z",
+      "valid_to": null,
+      "edge_version": 3
+    },
+    "AffinityCalculation": {
+      "entity_type": "AffinityCalculation",
+      "affinity_calculation_id": "affinity_calc_202609_week1",
+      "simulation_id": "sim_2026_09_main",
+      "status": "completed",
+      "model_version": "affinity_model_1.0.0",
+      "feature_definition_version": "affinity_features_1.0.0",
+      "window_start": "2026-09-01T00:00:00Z",
+      "window_end": "2026-09-08T00:00:00Z",
+      "candidate_policy": {
+        "strategy": "cohort_neighbours",
+        "maximum_candidates_per_persona": 250
+      },
+      "input_fingerprint": "sha256:affinity-input-example",
+      "started_at": "2026-09-08T01:00:00Z",
+      "completed_at": "2026-09-08T01:04:12Z",
+      "pair_count": 2450000
+    },
+    "AffinityScore": {
+      "entity_type": "AffinityScore",
+      "affinity_score_id": "affinity_score_42_107_week1",
+      "affinity_calculation_id": "affinity_calc_202609_week1",
+      "simulation_id": "sim_2026_09_main",
+      "source_persona_id": "persona_000042",
+      "target_persona_id": "persona_000107",
+      "overall_score": 0.79,
+      "dimensions": {
+        "musical": 0.86,
+        "emotional_pattern": 0.74,
+        "behavioural_rhythm": 0.71,
+        "social_context": 0.82
+      },
+      "coverage": 0.77,
+      "feature_refs": ["daily_features:persona_000042:week1", "daily_features:persona_000107:week1"],
+      "calculated_at": "2026-09-08T01:03:08Z"
+    }
+  }
+}
