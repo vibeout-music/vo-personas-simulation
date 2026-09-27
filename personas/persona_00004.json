@@ -1,0 +1,291 @@
+{
+  "metadata": {
+    "id": "p_000004",
+    "persona_id": "persona_000004",
+    "schema_version": "1.0.0",
+    "seed": 346355,
+    "simulation_seed": 161175,
+    "archetype": "morning_person",
+    "$schema": null,
+    "_llm_model": null
+  },
+  "stable_profile": {
+    "demographics": {
+      "name_alias": "Hvftouoq",
+      "age": 52,
+      "gender": "male",
+      "gender_identity": "prefer_not_to_say",
+      "life_stage": "senior"
+    },
+    "residency": {
+      "country": "UK",
+      "timezone": "America/New_York",
+      "environment": "suburban",
+      "urbanicity": 0.92
+    },
+    "languages": [
+      {
+        "code": "zh",
+        "proficiency": 0.92
+      },
+      {
+        "code": "en",
+        "proficiency": 0.64
+      }
+    ],
+    "education_level": "higher",
+    "economic_situation": 0.84,
+    "socioeconomic_security": 0.53,
+    "chronotype": 0.57,
+    "formative_music_years": [
+      2010,
+      2018
+    ]
+  },
+  "neurobiology": {
+    "neurodivergence": {
+      "has_adhd": true,
+      "sensory_sensitivity": 0.94
+    },
+    "sleep_characteristics": {
+      "average_sleep_hours": 5.9,
+      "sleep_quality": 0.34,
+      "chronotype_value": 0.89
+    }
+  },
+  "psychology": {
+    "big_five": {
+      "openness": 0.65,
+      "conscientiousness": 0.76,
+      "extraversion": 0.81,
+      "agreeableness": 0.46,
+      "neuroticism": 0.97,
+      "emotional_stability": 0.19
+    },
+    "personality_traits": {
+      "sensation_seeking": 0.67,
+      "self_esteem": 0.76,
+      "locus_of_control": "external"
+    },
+    "values": {
+      "achievement": 0.1,
+      "belonging": 0.72,
+      "autonomy": 0.62,
+      "security": 0.91,
+      "exploration": 0.87,
+      "social_status": 0.88,
+      "meaning": 0.11
+    },
+    "goals_and_ambitions": {
+      "core_ambitions": [
+        "family",
+        "health",
+        "creative",
+        "career"
+      ],
+      "mindset": 0.18
+    },
+    "insecurities_and_fears": {
+      "concerns": [
+        "relationships",
+        "health",
+        "finances"
+      ]
+    }
+  },
+  "emotional_profile": {
+    "baseline_mood": {
+      "valence": 0.64,
+      "arousal": -0.31,
+      "dominance": 0.35,
+      "intensity": 0.32
+    },
+    "dynamics": {
+      "mood_volatility": 0.89,
+      "recovery_rate": 0.71,
+      "emotion_clarity": 0.31
+    },
+    "music_emotional_impact": {
+      "musical_sensitivity": 0.88,
+      "uses_of_music": {
+        "emotion_regulation": 0.86,
+        "background": 0.97,
+        "focus": 0.01,
+        "workout_energy": 0.28,
+        "identity_expression": 0.61,
+        "social": 0.04,
+        "nostalgia": 0.32
+      },
+      "nostalgia_proneness": 0.72
+    }
+  },
+  "life_context": {
+    "family_and_relationships": {
+      "relationship_status": "widowed",
+      "children": [
+        1
+      ]
+    },
+    "living_situation": {
+      "living_arrangement": "family",
+      "privacy": 0.14
+    },
+    "social_connections": {
+      "social_support": 0.72,
+      "network_size": 38
+    },
+    "health": {
+      "physical_health": 0.03,
+      "avg_sleep_quality": 0.84
+    }
+  },
+  "work_and_occupation": {
+    "occupation": {
+      "occupation": "on_site",
+      "work_environment": "office"
+    },
+    "schedule": {
+      "can_listen_while_working": 0.84
+    },
+    "work_characteristics": {
+      "baseline_stress": 0.86,
+      "cognitive_load": 0.11
+    }
+  },
+  "music_identity": {
+    "importance_and_sophistication": {
+      "music_identity_importance": 0.75,
+      "musical_sophistication": 0.48,
+      "training_years": 20
+    },
+    "genres_and_styles": {
+      "genres": {
+        "hip_hop": 0.18,
+        "metal": 0.42,
+        "rnb": 0.99,
+        "country": 0.98,
+        "classical": 0.62,
+        "techno": 0.01
+      }
+    },
+    "taste_profile": {
+      "mainstreamness": 0.73,
+      "exploration_rate": 0.51,
+      "taste_breadth": 0.05
+    },
+    "audio_features": {
+      "audio_feature_preferences": {
+        "energy": {
+          "ideal": 0.79,
+          "tolerance": 0.95
+        },
+        "valence": {
+          "ideal": 0.38,
+          "tolerance": 0.7
+        },
+        "arousal": {
+          "ideal": 0.91,
+          "tolerance": 0.66
+        },
+        "danceability": {
+          "ideal": 0.75,
+          "tolerance": 0.31
+        },
+        "acousticness": {
+          "ideal": 0.99,
+          "tolerance": 0.89
+        },
+        "instrumentalness": {
+          "ideal": 0.75,
+          "tolerance": 0.65
+        },
+        "complexity": {
+          "ideal": 0.43,
+          "tolerance": 0.69
+        },
+        "intensity": {
+          "ideal": 0.47,
+          "tolerance": 0.46
+        }
+      }
+    },
+    "listening_dimensions": {
+      "lyrics_vs_sound": 0.6
+    },
+    "listening_functions": {
+      "background": 0.33,
+      "focus": 0.22,
+      "exercise": 0.08,
+      "relaxation": 0.31,
+      "emotion_processing": 0.87,
+      "social_connection": 0.28,
+      "identity_expression": 0.02,
+      "killing_time": 0.62
+    }
+  },
+  "environmental_sensitivities": {
+    "context_sensitivity": {
+      "mood": 0.93,
+      "arousal": 0.59,
+      "activity": 0.44,
+      "attention": 0.79,
+      "stress": 0.01,
+      "fatigue": 0.3,
+      "loneliness": 0.31,
+      "social_company": 0.44,
+      "time_of_day": 0.19,
+      "recent_life_events": 0.08,
+      "weather": 0.16,
+      "daylight": 0.87
+    }
+  },
+  "routine_and_behavior": {
+    "sessions_per_day": [
+      1,
+      3
+    ],
+    "session_length_min": {
+      "mean": 28,
+      "std": 6
+    },
+    "skip_rate": 0.07,
+    "like_rate": 0.85,
+    "obsessive_replay": 0.97,
+    "habituation": 0.69,
+    "social_listening": 0.85,
+    "baseline_daily_listening_probability": 0.44,
+    "skip_impatience": 0.73,
+    "repeat_propensity": 0.83
+  },
+  "mutable_state": {
+    "timestamp": "2026-09-02T10:42:45.510775Z",
+    "current_affect": {
+      "valence": -0.25,
+      "arousal": -0.28,
+      "dominance": -0.41,
+      "intensity": 0.16
+    },
+    "physiological_state": {
+      "stress": 0.95,
+      "energy": 0.25,
+      "fatigue": 0.61
+    },
+    "music_satiation": 0.62
+  },
+  "current_context": {
+    "timestamp": "2026-09-02T09:31:45.510779Z",
+    "day_type": "weekend",
+    "activity": "working",
+    "location_type": "work",
+    "social_company": "alone",
+    "device": "wearable",
+    "audio_output": "headphones",
+    "weather": {
+      "condition": "rainy",
+      "temperature_c": 30,
+      "sunlight": 0.5,
+      "precipitation": 0.77,
+      "sky": "overcast"
+    }
+  }
+}
