@@ -1,1 +1,13 @@
 roadmap.md
+.DS_Store
+
+
+
+# Generated populations
+data/generated/
+__pycache__/
+
+# Spotify credentials and local music data (never committed)
+.env
+data/catalog/
+data/simulation/
