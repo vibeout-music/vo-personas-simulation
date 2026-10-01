@@ -199,10 +199,11 @@ For numeric traits, beta, log-normal and Poisson distributions will usually be m
 
 The entire simulation should not be stored in one deeply nested JSON document or as a directory of JSON files per persona.
 
-JSON has two documentation roles:
+JSON has three documentation roles:
 
 - `schemas/entity-contracts.schema.json` describes the formal structure of every logical entity.
 - `examples/entity-examples.json` provides one representative object per entity.
+- `schemas/persona-unified-schema.json` is the field template of a generated persona, with one field per concept. `scripts/generate_personas.py` fills every field coherently and writes the population as JSONL (one persona per line). `data/fixtures/personas_fixture.jsonl` is a 100-persona sample.
 
 Runtime instances live in shared PostgreSQL tables:
 
@@ -260,6 +261,8 @@ A mood explicitly reported through the application is observable telemetry. The 
   }
 }
 ```
+
+This example is conceptual. The full field list of a generated persona is `schemas/persona-unified-schema.json`, and `data/fixtures/personas_fixture.jsonl` contains real generated examples.
 
 The current emotion, active session, recent-history features and interactions live outside this stable object.
 

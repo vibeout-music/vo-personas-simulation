@@ -1,4 +1,4 @@
-# VO Personas Simulation
+# Vibeout Personas Simulation
 
 An auditable and reproducible system for running persistent synthetic music listeners and generating application-compatible behavioural telemetry.
 
@@ -9,7 +9,7 @@ An auditable and reproducible system for running persistent synthetic music list
 
 ## Overview
 
-VO Personas Simulation models a long-lived population of synthetic users whose identities, circumstances, emotional states, music preferences, and listening histories evolve over simulated time.
+Vibeout Personas Simulation models a long-lived population of synthetic users whose identities, circumstances, emotional states, music preferences, and listening histories evolve over simulated time.
 
 The system periodically advances a persistent simulated world. Each execution determines which personas are due for processing, updates their state, evaluates whether they have an opportunity or motivation to listen, exposes them to plausible music candidates, simulates their application behaviour, and records the result as if it came from a real product telemetry system.
 
@@ -331,9 +331,13 @@ vo-personas-simulation/
 │   ├── policies/
 │   └── retention/
 ├── schemas/
-│   └── entity-contracts.schema.json
+│   ├── entity-contracts.schema.json
+│   ├── persona-unified-schema.json
+│   └── llm-models-schemas/
 ├── examples/
 │   └── entity-examples.json
+├── scripts/
+│   └── generate_personas.py
 ├── docs/
 │   ├── vibeout-synthetic-personas.md
 │   ├── synthetic-listener-simulation-concept-map.md
@@ -355,10 +359,75 @@ vo-personas-simulation/
 │   └── statistical/
 └── data/
     ├── fixtures/
+    │   └── personas_fixture.jsonl
     └── generated/
 ```
 
 Generated simulations and large analytical datasets should live outside version control.
+
+## Generating Personas
+
+`schemas/persona-unified-schema.json` is the field template for a synthetic persona: it merges the per-model schemas in `schemas/llm-models-schemas/` into one field per concept. The generator fills every field of it and writes one persona per line (JSONL):
+
+```bash
+python3 scripts/generate_personas.py --count 20000 --seed 42 --out data/generated/personas.jsonl
+```
+
+- Generation is deterministic: the same `--seed` and `--reference-date` produce a byte-identical file.
+- Sections are built in causal order (country → age → education → work → household → personality → emotion → music → behaviour → devices → context → state → listening intent), so each field only depends on what came before.
+- Every persona is checked against the schema's shape and a set of coherence rules in `src/vo_personas_simulation/generation/rules.py`. Examples: education is a trajectory, so nobody can be enrolled in a bachelor's degree after completing a master's; minors live with their parents and cannot drive; children are at least 16 years younger than their parent; the context device must be one the persona owns. Generation stops on the first incoherent persona.
+- Personality and musical taste are deliberately varied. Each persona is a mixture of one or two archetypes rather than a clone of one.
+- `data/fixtures/personas_fixture.jsonl` holds 100 personas (seed 42) for tests and review. Full populations go to `data/generated/`.
+
+## Simulating Listening
+
+Each run of the listening script is one moment in every persona's life: it recomputes their context, latent state and listening intent for that instant, chooses a real song from a local catalogue for the reasons that drive them, plays it (completed or skipped, liked or not) and remembers it for the next runs. Run it once, or several times a day.
+
+**1. Spotify credentials.** Copy `.env.example` to `.env` and fill in `SPOTIFY_CLIENT_ID` and `SPOTIFY_CLIENT_SECRET` from your app at developer.spotify.com. `.env` is never committed.
+
+**2. Check what your app can use** (3–4 requests):
+
+```bash
+python3 scripts/harvest_catalog.py --probe
+```
+
+**3. Simulate a moment.** Before simulating, the catalogue grows with a small request budget; every run continues where the previous one stopped, so the catalogue keeps getting bigger.
+
+```bash
+python3 scripts/simulate_listening.py                                     # now, one song per persona
+python3 scripts/simulate_listening.py --at 2026-10-01T07:30:00Z --listens 3
+python3 scripts/simulate_listening.py --offline --respect-listen-probability
+```
+
+| Option | Default | Meaning |
+|---|---|---|
+| `--personas` | `data/fixtures/personas_fixture.jsonl` | Personas to simulate. |
+| `--at` | now | Simulated UTC instant; each persona lives it in their own time zone. |
+| `--listens` | `1` | Songs in a row per persona in this run. |
+| `--respect-listen-probability` | off | Let personas skip music when the moment does not suit it (asleep, no audio...). |
+| `--harvest-requests` | `150` | Spotify request budget to grow the catalogue first. |
+| `--offline` | off | Do not call Spotify. |
+| `--seed` | `42` | With `--at`, the catalogue and the history, makes a run reproducible. |
+
+Output: `data/generated/listens/<run>.jsonl`, one line per persona with the moment (context, state, intent), every song played and its `song_of_the_moment`:
+
+```json
+{"title": "...", "artists": ["..."], "year": 2009, "genres": ["opera"], "spotify_url": "https://open.spotify.com/track/...",
+ "outcome": "completed", "liked": false, "features_source": "estimated",
+ "reasons": [{"factor": "moment", "detail": "right for focus while working", "edge_over_others": 0.61}, ...]}
+```
+
+How a song is chosen (`src/vo_personas_simulation/listening/choice.py`): about 200 candidates are drawn from the persona's taste, nostalgia, what is popular, exploration and songs they already know; each is scored with named factors (taste, sound, mood, moment, nostalgia, popularity, novelty, familiarity, satiation, lyrics) weighted by the persona's traits; a softmax picks one, with more randomness for impulsive personas. The reasons are the factors where the chosen song beat the other candidates.
+
+Local data, never committed: the catalogue in `data/catalog/music.sqlite` and the listening history (events, per-track and per-artist memory) in `data/simulation/listening.sqlite`.
+
+Limits: new Spotify apps no longer receive audio features, so energy, valence, danceability, acousticness, instrumentalness and tempo are **estimated** from genre, era and popularity (`features_source: "estimated"`). Spotify content stays local and is only used to pick songs in the simulation; it is not used to train models.
+
+Run the tests (no network needed; Spotify is replaced by a fake client):
+
+```bash
+python3 -m unittest tests/unit/test_rules.py tests/unit/test_catalog.py tests/unit/test_listening.py tests/statistical/test_population.py
+```
 
 ## Implementation Principles
 
@@ -393,6 +462,8 @@ Generated simulations and large analytical datasets should live outside version 
 - [Data architecture and execution pipeline](./docs/synthetic-listener-simulation-architecture.md)
 - [Synthetic persona model](./docs/vibeout-synthetic-personas.md)
 - [Entity JSON Schema catalog](./schemas/entity-contracts.schema.json)
+- [Persona field template](./schemas/persona-unified-schema.json)
+- [Persona generator](./scripts/generate_personas.py)
 - [Representative entity examples](./examples/entity-examples.json)
 
 ## Project Principle
