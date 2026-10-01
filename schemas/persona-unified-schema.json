@@ -2,10 +2,11 @@
   "metadata": {
     "id": null,
     "persona_id": null,
-    "schema_version": "1.0.0",
+    "schema_version": "2.0.0",
     "seed": null,
     "simulation_seed": null,
     "archetype": null,
+    "archetype_mix": null,
     "$schema": null,
     "_llm_model": null
   },
@@ -13,6 +14,7 @@
   "stable_profile": {
     "demographics": {
       "name_alias": null,
+      "birth_date": null,
       "age": null,
       "gender": null,
       "gender_identity": null,
@@ -25,8 +27,10 @@
       "urbanicity": null
     },
     "languages": null,
-    "primary_languages": null,
-    "education_level": null,
+    "education": {
+      "highest_completed": null,
+      "enrolled_in": null
+    },
     "economic_situation": null,
     "socioeconomic_security": null,
     "cultural_exposure": null,
@@ -41,8 +45,7 @@
     },
     "sleep_characteristics": {
       "average_sleep_hours": null,
-      "sleep_quality": null,
-      "chronotype_value": null
+      "sleep_quality": null
     }
   },
 
@@ -52,8 +55,7 @@
       "conscientiousness": null,
       "extraversion": null,
       "agreeableness": null,
-      "neuroticism": null,
-      "emotional_stability": null
+      "neuroticism": null
     },
     "personality_traits": {
       "sensation_seeking": null,
@@ -79,14 +81,11 @@
       "meaning": null
     },
     "goals_and_ambitions": {
-      "core_ambitions": null,
       "ambitions": null,
       "goals": null,
       "mindset": null
     },
     "insecurities_and_fears": {
-      "core_insecurities_and_fears": null,
-      "insecurities": null,
       "concerns": null
     },
     "coping_mechanisms": {
@@ -97,46 +96,30 @@
   },
 
   "emotional_profile": {
-    "baseline_mood": {
+    "baseline": {
       "valence": null,
-      "arousal": null
-    },
-    "baseline_state": {
-      "baseline_valence": null,
-      "baseline_arousal": null,
-      "baseline_stress": null
+      "arousal": null,
+      "dominance": null,
+      "stress": null
     },
     "dynamics": {
-      "mood_volatility": null,
-      "emotional_volatility": null,
       "volatility": null,
-      "emotion_clarity": null,
-      "emotion_expression": null,
       "inertia": null,
-      "recovery_rate": null
+      "recovery_rate": null,
+      "emotion_clarity": null,
+      "emotion_expression": null
     },
     "regulation": {
-      "iso_principle_adherence": null,
-      "mood_recovery_rate": null
+      "iso_principle_adherence": null
     },
     "music_emotional_impact": {
       "musical_sensitivity": null,
-      "uses_of_music": {
-        "emotion_regulation": null,
-        "background": null,
-        "focus": null,
-        "workout_energy": null,
-        "identity_expression": null,
-        "social": null,
-        "nostalgia": null
-      },
       "nostalgia_proneness": null
     }
   },
 
   "life_context": {
     "family_and_relationships": {
-      "relationship_status": null,
       "children": null,
       "family": {
         "closeness": null,
@@ -152,7 +135,6 @@
     },
     "living_situation": {
       "living_arrangement": null,
-      "living_situation": null,
       "privacy": null,
       "background_noise": null,
       "caregiving_load": null
@@ -160,7 +142,6 @@
     "social_connections": {
       "social_support": null,
       "social_battery_capacity": null,
-      "loneliness_index": null,
       "network_size": null,
       "contact_frequency": null,
       "sense_of_belonging": null,
@@ -168,16 +149,13 @@
       "peer_music_influence": null
     },
     "health": {
-      "physical_health": null,
-      "sleep_last_night_h": null,
-      "avg_sleep_quality": null
+      "physical_health": null
     },
     "life_events": {
       "active_life_events": null
     },
     "financial": {
-      "financial_pressure": null,
-      "financial_stress_level": null
+      "financial_pressure": null
     }
   },
 
@@ -189,20 +167,20 @@
       "status": null
     },
     "schedule": {
-      "work_schedule": null,
       "schedule_type": null,
+      "work_hours": null,
+      "study_hours": null,
+      "days_off": null,
       "weekly_hours": null,
       "can_listen_while_working": null
     },
     "work_characteristics": {
       "autonomy": null,
-      "baseline_stress": null,
+      "work_stress": null,
       "cognitive_load": null,
-      "daily_cognitive_load": null,
       "music_allowed": null
     },
     "commute": {
-      "commute": null,
       "mode": null,
       "minutes_each_way": null
     },
@@ -224,9 +202,7 @@
     },
     "session_behavior": {
       "sessions_per_day": null,
-      "avg_sessions_per_day": null,
-      "session_length_min": null,
-      "session_duration": null
+      "session_length_min": null
     },
     "listening_initiation": {
       "session_start_mode": null,
@@ -236,8 +212,6 @@
     },
     "skip_behavior": {
       "skip_rate": null,
-      "skip_profile": null,
-      "skip_impatience": null,
       "skip_patience_seconds": null,
       "tolerance_consecutive_bad_songs": null
     },
@@ -248,12 +222,10 @@
       "sharing_propensity": null
     },
     "replay_and_habituation": {
+      "repeat_propensity": null,
       "obsessive_replay": null,
       "habituation": null,
-      "obsessive_loop_tendency": null,
-      "repeat_propensity": null,
-      "completion_bias": null,
-      "repeat_tolerance": null
+      "completion_bias": null
     },
     "baseline_listening": {
       "baseline_daily_listening_probability": null
@@ -262,39 +234,24 @@
 
   "music_identity": {
     "importance_and_sophistication": {
-      "music_identity_importance": null,
       "identity_centrality": null,
       "musical_sophistication": null,
       "active_musician": null,
-      "training_years": null,
-      "musical_training": null
+      "training_years": null
     },
     "genres_and_styles": {
-      "genres": null,
-      "core_favorite_genres": null,
-      "tolerated_genres": null,
-      "hard_disliked_genres": null,
-      "style_dimensions": null,
-      "genre_affinities": null
+      "genre_affinities": null,
+      "style_dimensions": null
     },
     "taste_profile": {
-      "mainstreamness": null,
-      "exploration_rate": null,
       "taste_breadth": null,
       "preferred_era": null,
       "guilty_pleasures": null,
       "album_listener_vs_singles": null
     },
-    "anchor_artists": {
-      "anchor_artists": null
-    },
+    "anchor_artists": null,
     "audio_features": {
-      "acoustic_preferences": {
-        "preferred_energy_range": null,
-        "preferred_valence_range": null,
-        "preferred_danceability_range": null,
-        "preferred_tempo_bpm": null
-      },
+      "preferred_tempo_bpm": null,
       "audio_feature_preferences": {
         "energy": null,
         "valence": null,
@@ -308,12 +265,6 @@
     },
     "listening_dimensions": {
       "lyrics_vs_sound": null,
-      "listening_dimension_affinity": {
-        "lyrical_importance": null,
-        "acoustic_vs_electronic": null,
-        "complexity_tolerance": null,
-        "instrumental_openness": null
-      },
       "lyrics": {
         "attention": null,
         "emotional_importance": null,
@@ -323,28 +274,23 @@
     },
     "sensory_and_discovery": {
       "frisson_sensitivity": null,
-      "novelty_seeking_ratio": null,
       "discovery": {
         "novelty_preference": null,
-        "familiarity_bias": null,
         "popularity_bias": null,
         "trend_sensitivity": null,
         "artist_loyalty": null,
-        "repeat_tolerance": null,
         "recommendation_trust": null
       }
     },
     "listening_functions": {
-      "listening_functions": {
-        "background": null,
-        "focus": null,
-        "exercise": null,
-        "relaxation": null,
-        "emotion_processing": null,
-        "social_connection": null,
-        "identity_expression": null,
-        "killing_time": null
-      }
+      "background": null,
+      "focus": null,
+      "exercise": null,
+      "relaxation": null,
+      "emotion_processing": null,
+      "social_connection": null,
+      "identity_expression": null,
+      "killing_time": null
     },
     "music_reward_sensitivity": {
       "musical_seeking": null,
@@ -368,7 +314,6 @@
 
   "environmental_sensitivities": {
     "contextual_sensitivities": {
-      "weather_sensitivity": null,
       "seasonal_sensitivity": null,
       "weekend_effect": null,
       "daily_event_sensitivity": null,
@@ -423,12 +368,6 @@
       "dominance": null,
       "intensity": null
     },
-    "current_mood": {
-      "valence": null,
-      "arousal": null,
-      "stress": null,
-      "energy": null
-    },
     "physiological_state": {
       "stress": null,
       "energy": null,
@@ -453,15 +392,14 @@
       "active_goal_pressure": null,
       "active_insecurity": null
     },
-    "music_satiation": {
-      "music_satiation": null,
-      "per_track_fatigue": null
-    }
+    "music_satiation": null,
+    "per_track_fatigue": null
   },
 
   "current_context": {
     "timestamp": null,
     "temporal": {
+      "local_time": null,
       "day_type": null,
       "time_of_day": null
     },
@@ -488,8 +426,6 @@
         "temperature_c": null,
         "sunlight": null,
         "precipitation": null,
-        "sky": null,
-        "temperature": null,
         "daylight_hours": null
       }
     },
