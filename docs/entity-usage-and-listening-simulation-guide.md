@@ -1,17 +1,20 @@
-# VO Personas Simulation
+# Vibeout Personas Simulation
 
 ## Entity Usage and End-to-End Listening Simulation Guide
 
 **Document status:** Implementation guide  
 **Architecture version:** 2.0  
-**Contract source:** `entity-contracts.schema.json`  
+**Contract source:** [`schemas/entity-contracts.schema.json`](../schemas/entity-contracts.schema.json)  
+**Companion document:** [Synthetic Listener Simulator: Architecture and Execution Pipeline](./synthetic-listener-simulation-architecture.md)  
 **Purpose:** Explain when every entity is read, created, updated, retained, and joined during simulation.
 
 ---
 
 ## 1. Purpose
 
-This document is the operational companion to the entity schema (/schemas/entity-contracts.schema.json). The JSON Schema defines the valid shape of each entity; this guide explains how those entities participate in the simulation and how implementation scripts should use them.
+This document is the operational companion to the [entity schema](../schemas/entity-contracts.schema.json) and to the [architecture](./synthetic-listener-simulation-architecture.md). The schema defines the valid shape of each entity; the architecture defines the decisions, the canonical pipeline stages (0–15), the identifiers, and the persistence and audit rules; this guide explains how each entity participates in those stages and how implementation scripts should use it.
+
+Stage numbers and names in this guide are the architecture's canonical ones ([architecture §12](./synthetic-listener-simulation-architecture.md#12-canonical-listening-pipeline)). Rules that are defined in the architecture (transaction, retention, invariants, implementation order) are linked rather than repeated.
 
 It answers four practical questions:
 
@@ -20,7 +23,7 @@ It answers four practical questions:
 3. Which record tells us what a persona is listening to and which mood led to that choice?
 4. Which entities are operational state, historical evidence, observable product telemetry, or optional audit data?
 
-The JSON entities are logical contracts. They are not intended to become one JSON file per persona. Runtime instances should normally be stored as rows in shared PostgreSQL tables or emitted as records to an event store.
+The JSON entities are logical contracts, not one JSON file per persona ([architecture §7](./synthetic-listener-simulation-architecture.md#7-json-contracts-are-not-physical-files)).
 
 ---
 
@@ -102,7 +105,7 @@ These definitions appear inside top-level entities and are not stored independen
 
 Represents emotion through valence, arousal, dominance, intensity, a primary label, and optional secondary labels.
 
-It is reused for four different meanings:
+It is reused for five different meanings:
 
 - `PersonaProfile.emotional_profile.baseline`: long-term emotional baseline.
 - `PersonaStateCurrent.emotion`: current latent emotional state.
@@ -160,7 +163,7 @@ One track position inside an `ExposureSet`. It distinguishes generated candidate
 
 **Used by:** The scheduler, workers, monitoring, retry logic, lineage, and batch-level metrics.
 
-**Lifecycle:** Created at the start of a script invocation, marked running, and closed as completed, partially failed, or failed.
+**Lifecycle:** Created at the start of a script invocation (stage 1), marked `running`, and closed as `completed`, `partially_failed`, or `failed` (stage 14).
 
 **Cardinality:** One per invocation, not one per persona.
 
@@ -304,7 +307,7 @@ One track position inside an `ExposureSet`. It distinguishes generated candidate
 
 **Models:** The resolved situation at one logical moment: activity, location, company, privacy, available time, app context, and references to source records.
 
-**Created by:** Context builder.
+**Created by:** Context builder at stage 3, before state evolution.
 
 **Consumed by:** State evolution, intent, playback, and audit.
 
@@ -314,7 +317,7 @@ One track position inside an `ExposureSet`. It distinguishes generated candidate
 
 **Models:** The complete versioned input boundary for one behavioural decision. It binds profile version, state version, context, active life events, and relevant music memory.
 
-**Created by:** Frame assembler.
+**Created by:** Frame assembler at stage 5, after pre-listening evolution.
 
 **Consumed by:** Intent, exposure, choice, playback, and oracle tracing.
 
@@ -326,11 +329,11 @@ One track position inside an `ExposureSet`. It distinguishes generated candidate
 
 **Models:** Whether listening is possible and desired, the probability of listening, the chosen listen/no-listen outcome, the motive, desired emotion, time budget, and control mode.
 
-**Created by:** Intent engine after current context and pre-listening state have been resolved.
+**Created by:** Intent engine at stage 6, from the decision frame. When `selected_outcome = listen`, the same stage opens the `ListeningSession`.
 
 **Consumed by:** Exposure generation, candidate evaluation, playback, and post-listening response.
 
-**Persistence:** Retain a compact record for actual opportunities when explanation is required. In lean mode it may be represented through a compact oracle trace and canonical outputs.
+**Persistence:** Depends on the audit mode ([architecture §18](./synthetic-listener-simulation-architecture.md#18-audit-and-retention-policy)): `compact` (Standard) keeps a compact record for every evaluated opportunity, including `no_listen`; `minimal` (Lean) folds it into the `OracleDecisionTrace`; `full` (Forensic) keeps it in full.
 
 **Important distinction:** `motive = emotion_regulation` explains why music is sought; `desired_emotion` describes the target state.
 
@@ -338,7 +341,7 @@ One track position inside an `ExposureSet`. It distinguishes generated candidate
 
 **Models:** Which tracks were generated, ranked, and actually served through a specific surface and policy.
 
-**Created by:** Exposure engine.
+**Created by:** Exposure engine at stage 7, inside the open session (`ExposureSet.session_id`).
 
 **Consumed by:** Candidate evaluator and choice sampler.
 
@@ -348,7 +351,7 @@ One track position inside an `ExposureSet`. It distinguishes generated candidate
 
 **Models:** The calculated utility and choice probability for one exposed track, including interpretable utility components.
 
-**Created by:** Choice engine, one per candidate plus an internal no-action alternative.
+**Created by:** Choice engine at stage 8, one per candidate plus an internal no-action alternative.
 
 **Consumed by:** Deterministic random choice sampler and audit tooling.
 
@@ -364,9 +367,9 @@ One track position inside an `ExposureSet`. It distinguishes generated candidate
 
 **Models:** Mutable operational playback: active/paused/ended status, current track, playback position, queue, and next decision time.
 
-**Created by:** Playback engine when a listening session begins.
+**Created by:** Playback engine at stage 9, when the first track starts in an already open session.
 
-**Consumed by:** Subsequent scheduled playback decisions.
+**Consumed by:** Subsequent scheduled playback decisions (stage 10).
 
 **Lifecycle:** Mutable while active. When the session ends, retain the `ListeningSession` summary and observable events; the active row can be removed, archived, or marked ended according to implementation policy.
 
@@ -376,7 +379,7 @@ One track position inside an `ExposureSet`. It distinguishes generated candidate
 
 **Models:** Something a real application could observe: session, discovery, exposure, playback, feedback, navigation, or explicit mood-check-in behaviour.
 
-**Created by:** Telemetry emitter during exposure and playback.
+**Created by:** Telemetry emitter at stages 6 (session start), 7 (exposure), and 9–10 (playback and feedback).
 
 **Consumed by:** Product analytics, recommendations, session reconstruction, and real-versus-synthetic comparisons.
 
@@ -388,9 +391,9 @@ One track position inside an `ExposureSet`. It distinguishes generated candidate
 
 **Models:** Queryable session lifecycle and final aggregate: start/end, source surface, primary intent, event count, track count, listened time, and completion reason.
 
-**Created by:** Playback/session manager.
+**Created by:** Session manager at stage 6, as soon as intent selects `listen` and before any exposure.
 
-**Lifecycle:** Mutable while active, then retained as a completed, abandoned, or failed summary.
+**Lifecycle:** `active` while open, then retained as a `completed`, `abandoned`, or `failed` summary when the session ends (stage 10).
 
 **Not sufficient for:** Listing the exact tracks heard. Use `ObservableEvent` records linked by `session_id` for the detailed sequence.
 
@@ -398,7 +401,7 @@ One track position inside an `ExposureSet`. It distinguishes generated candidate
 
 **Models:** A meaningful change between two persona state versions, including its cause, source references, and field-level changes.
 
-**Created by:** Pre-listening evolution, life-event handling, playback response, and other state-changing processes.
+**Created by:** Pre-listening evolution (stage 4, cause `pre_listening_time_evolution`), post-listening response (stage 11, cause `post_listening_response`), life-event handling, and other state-changing processes.
 
 **Consumed by:** Replay, debugging, causal inspection, and state reconstruction.
 
@@ -410,7 +413,7 @@ One track position inside an `ExposureSet`. It distinguishes generated candidate
 
 **Models:** A compact historical projection of latent emotion and related variables at selected moments.
 
-**Created by:** Observation projector on heartbeats, thresholds, session boundaries, life-event boundaries, mood check-ins, or forensic capture.
+**Created by:** Observation projector whenever an `observation_reason` fires: `heartbeat`, `state_threshold`, `session_start`, `session_end`, `life_event_boundary`, `mood_check_in`, or `forensic` ([architecture §10.4](./synthetic-listener-simulation-architecture.md#104-emotionalstateobservation)).
 
 **Consumed by:** Emotional timeline queries, regulation analysis, cohort analysis, and mood-inference evaluation.
 
@@ -422,11 +425,11 @@ One track position inside an `ExposureSet`. It distinguishes generated candidate
 
 **Models:** Hidden synthetic ground truth for one decision: decision type, frame, model version, random stream/draw, selected outcome, latent motive, and utility summary.
 
-**Created by:** Behavioural decision engines.
+**Created by:** Behavioural decision engines; for track choice, at stage 8, referencing the stage-5 frame.
 
 **Consumed by:** Reproducibility checks, debugging, explanation, and evaluation of inference systems.
 
-**Persistence:** Minimal in lean mode, compact for all decisions in standard mode, and detailed for selected forensic windows.
+**Persistence:** `audit_level` follows the retention mode: `minimal` (Lean), `compact` for all decisions (Standard), `full` for all decisions (Forensic). See [architecture §18](./synthetic-listener-simulation-architecture.md#18-audit-and-retention-policy).
 
 **Boundary:** Store separately from observable telemetry. A real application would not know this information.
 
@@ -531,37 +534,36 @@ Recent history needed for decisions must be carried as bounded incremental featu
 
 ---
 
-## 14. One Complete Listening-Decision Pipeline
+## 14. Entity Touches per Pipeline Stage
 
-This section describes exactly which entities a script touches when one due persona starts listening.
+This table lists exactly which entities each canonical stage reads and writes. Stage numbers and names are those of [architecture §12](./synthetic-listener-simulation-architecture.md#12-canonical-listening-pipeline); processing details live there.
 
-| Stage | Reads | Produces or updates | Persistence behaviour |
-| --- | --- | --- | --- |
-| 0. Resume world | `SimulationConfig`, `SimulationInstance`, optional `Checkpoint` | Restored workers, versions, clock, random streams | Process-level operation |
-| 1. Open batch | `SimulationInstance` | `ExecutionBatch` | One lifecycle record per invocation |
-| 2. Select work | `PersonaStateCurrent.next_scheduled_event_at`, active `PlaybackSessionState` | Due-persona work list | Scheduler state only |
-| 3. Build context | `PersonaProfile`, current state, schedule/template, active life events, `WorldState` | `ContextSnapshot` | Hash/refs retained; full snapshot sampled |
-| 4. Evolve state | Current state, context, elapsed time, life events | In-memory new state; optional `StateTransition`; optional observation | Transition/observation appended if policy requires |
-| 5. Freeze decision input | Updated state plus context and relevant memory refs | `SimulationFrame` | Transient or sampled |
-| 6. Evaluate intent | Decision frame | `ListeningIntent` | Compact record for evaluated opportunity according to retention policy |
-| 7. Generate exposure | Intent, policy, catalogue, memory | `ExposureSet`; exposure `ObservableEvent` records | Served items retained; unserved longlist sampled/omitted |
-| 8. Choose track | Exposure, intent, state, memory | `CandidateEvaluation`; `OracleDecisionTrace`; selected track/no-action | Evaluations transient/sampled; trace policy-controlled |
-| 9. Start playback | Selected track and app context | `PlaybackSessionState`, `ListeningSession`, `track_started` event | Active rows updated; event appended |
-| 10. Continue playback | Active playback state, attention, time budget | Progress/pause/skip/complete events and updated playback state | Events appended; current playback row updated |
-| 11. Apply response | Outcome, track, pre-listening state, profile sensitivity | Post-listening `StateTransition`, optional observation, new current state | Transition/observation appended |
-| 12. Learn memory | Exposures and actions | Upsert `PersonTrackState`; optional `PersonArtistState` | Sparse mutable rows |
-| 13. Commit persona | All calculated results | Updated `PersonaStateCurrent`, next scheduled event | One atomic persona consistency boundary |
-| 14. Close batch | Work-item results | Final `ExecutionBatch`; updated simulation logical time; optional `Checkpoint` | Batch lifecycle and periodic checkpoint |
-| 15. Project analytics | Events, sessions, transitions, observations | `DailyPersonaSummary`, `SimulationMetrics` | Asynchronous derived data |
+| # | Stage | Reads | Produces or updates | Persistence behaviour |
+| ---: | --- | --- | --- | --- |
+| 0 | Resume simulation | `SimulationConfig`, `SimulationInstance`, optional `Checkpoint` | Restored versions, clock, random streams | Process-level operation |
+| 1 | Open batch | `SimulationInstance` | `ExecutionBatch` (`running`) | One lifecycle record per invocation |
+| 2 | Select due work | `PersonaStateCurrent.next_scheduled_event_at`, active `PlaybackSessionState` | Due-persona work list | Scheduler state only |
+| 3 | Build context | `PersonaProfile`, `PersonaStateCurrent`, `PersonaSchedule`, `ScheduleTemplate`, active `LifeEvent`s, `WorldState` | `ContextSnapshot` | Hash and references; full snapshot per audit mode |
+| 4 | Evolve state | Current state, `ContextSnapshot`, elapsed time, life events | Evolved in-memory state; optional `StateTransition`; optional `EmotionalStateObservation` | Appended at commit if meaningful or triggered |
+| 5 | Freeze decision frame | Evolved state, context, relevant memory references | `SimulationFrame` on the evolved `state_version`; `decision_id` | Transient; sampled per audit mode |
+| 6 | Evaluate intent | `SimulationFrame` | `ListeningIntent`; on `listen`: `ListeningSession` (`active`), `session_started` `ObservableEvent`, `session_start` observation | Intent per audit mode; session row and event persisted |
+| 7 | Generate exposure | `ListeningIntent`, `ExposurePolicy`, `Track`, `Artist`, sparse memory | `ExposureSet` (with `session_id`); exposure `ObservableEvent`s for served items | Served items persisted as telemetry; unserved longlist per audit mode |
+| 8 | Choose track | `ExposureSet`, `SimulationFrame`, `ListeningIntent`, sparse memory | `CandidateEvaluation`s; `OracleDecisionTrace`; selected track or no action | Evaluations and trace per audit mode |
+| 9 | Start playback | Selected track, open `ListeningSession`, app context | `PlaybackSessionState` (`active`); `track_started` event | Playback row upserted; event appended |
+| 10 | Continue playback | `PlaybackSessionState`, attention, time budget | Progress, pause, skip, and completion events; updated playback state; session summary and `session_end` observation on exit | Events appended; playback and session rows updated |
+| 11 | Apply response | Outcome, `Track`, pre-listening state, `ListeningIntent`, profile sensitivity | Post-listening `StateTransition`; optional observation; new in-memory state | Appended at commit |
+| 12 | Learn memory | Exposure and playback events | Upsert `PersonTrackState`; optional `PersonArtistState` | Sparse mutable rows |
+| 13 | Commit persona | All calculated results | `PersonaStateCurrent`, next scheduled event, and every record above | One atomic persona transaction ([architecture §13](./synthetic-listener-simulation-architecture.md#13-transaction-ordering-and-idempotency)) |
+| 14 | Close batch | Work-item results | Final `ExecutionBatch` status; simulation logical time; optional `Checkpoint` | Batch lifecycle and periodic checkpoint |
+| 15 | Project analytics | Events, sessions, transitions, observations | `DailyPersonaSummary`, `SimulationMetrics` | Asynchronous derived data |
 
 ### No-listen path
 
-`selected_outcome = no_listen` is valid and expected. In that path:
+`selected_outcome = no_listen` is valid and expected. The persona goes from stage 6 directly to stage 13 ([architecture §12, stage 6](./synthetic-listener-simulation-architecture.md#stage-6--evaluate-intent)):
 
-- Persist or sample the `ListeningIntent` according to policy.
-- Optionally record a compact `OracleDecisionTrace`.
-- Persist any pre-listening state transition or due emotional observation.
-- Do not create a listening session, playback state, exposure set, or playback event unless the product actually displayed content before the no-action outcome.
+- Keep the `ListeningIntent` according to the audit mode, and optionally a compact `OracleDecisionTrace`.
+- Keep any stage-4 `StateTransition` or due `EmotionalStateObservation`.
+- Do not create a `ListeningSession`, `PlaybackSessionState`, `ExposureSet`, or playback event unless the product actually displayed content before the no-action outcome.
 - Update `PersonaStateCurrent.next_scheduled_event_at` and commit.
 
 ---
@@ -663,7 +665,7 @@ The choice must use state version 194 because that is the state after pre-listen
 
 ### 15.5 Mood immediately before selection
 
-Because session-boundary observations are enabled, the simulator records the latent state at session start. This is the historical mood record to use for this decision.
+Because session-boundary observations are enabled, the simulator records the latent state at session start (stage 6, right after the intent below selects `listen` and the `session_started` event is emitted at 08:01:01). This is the historical mood record to use for this decision.
 
 ```json
 {
@@ -672,7 +674,7 @@ Because session-boundary observations are enabled, the simulator records the lat
   "simulation_id": "sim_2026_09_main",
   "execution_id": "exec_2026_09_03_0800",
   "persona_id": "persona_000042",
-  "observed_at": "2026-09-03T08:01:05Z",
+  "observed_at": "2026-09-03T08:01:01Z",
   "observation_reason": "session_start",
   "emotion": {
     "valence": -0.09,
@@ -695,7 +697,7 @@ Because session-boundary observations are enabled, the simulator records the lat
 }
 ```
 
-This says what the persona felt before playback. It does not yet explain why music was selected or why this particular track won.
+The observation is captured at stage 6, when the intent selects `listen` and the session opens, before any exposure. It says what the persona felt before playback; it does not yet explain why music was selected or why this particular track won.
 
 ### 15.6 Listening intent
 
@@ -731,9 +733,11 @@ Interpretation:
 - Desired mood: focused/hopeful.
 - Listening is probable but not guaranteed.
 
+Because `selected_outcome = listen`, stage 6 also opens `ListeningSession` `session_0042_319` and emits its `session_started` event at 08:01:01. Exposure, choice, and playback all happen inside this session.
+
 ### 15.7 Exposure and track choice
 
-The product exposes `track_city_lights` through home recommendations.
+Stage 7: inside the open session, the product exposes `track_city_lights` through home recommendations.
 
 ```json
 {
@@ -759,7 +763,7 @@ The product exposes `track_city_lights` through home recommendations.
 }
 ```
 
-The choice engine evaluates the exposed track.
+Stage 8: the choice engine evaluates the exposed track.
 
 ```json
 {
@@ -820,7 +824,7 @@ The hidden decision trace records the final choice.
 
 ### 15.8 Playback starts
 
-The current operational playback row now answers exactly what is playing.
+Stage 9: the first track starts, creating the operational playback row that answers exactly what is playing.
 
 ```json
 {
@@ -878,7 +882,7 @@ The application-compatible event records what an app could observe.
 
 ### 15.9 Post-listening response
 
-Suppose the persona listens to most of the track and the simulation calculates a moderate successful regulation effect. The state engine may produce a transition such as:
+Stage 11: suppose the persona listens to most of the track and the simulation calculates a moderate successful regulation effect. The state engine may produce a transition such as:
 
 ```json
 {
@@ -928,7 +932,7 @@ This resulting state is written to `PersonaStateCurrent`, projected to `Emotiona
 
 ### 15.10 Music-memory update
 
-The existing `PersonTrackState` is updated rather than copied into a new history document. Its `state_version`, familiarity, affinity, satiation, play count, emotional associations, and timestamps may change. The immutable playback event remains the historical evidence from which the update was derived.
+Stage 12: the existing `PersonTrackState` is updated rather than copied into a new history document. Its `state_version`, familiarity, affinity, satiation, play count, emotional associations, and timestamps may change. The immutable playback event remains the historical evidence from which the update was derived.
 
 ### 15.11 Records not involved
 
@@ -940,7 +944,7 @@ The following entities are not read or written by this listening decision:
 
 `DailyPersonaSummary` and `SimulationMetrics` are produced later by analytical projection jobs, not inside the persona transaction.
 
-`Checkpoint` is produced only if the batch crosses a configured checkpoint boundary.
+`Checkpoint` is produced only if the batch crosses a configured checkpoint boundary at stage 14.
 
 ---
 
@@ -1001,6 +1005,8 @@ PlaybackSessionState.current_track_id
     -> CandidateEvaluation(why this track won)
 ```
 
+This chain relies on the `decision_id` convention ([§17](#17-decision-lineage)): with it, every hop is an explicit key join. The current schema can only express several of these hops through time and `decision_sequence` correlation, so implement the convention before relying on this query.
+
 This answers different parts of the explanation:
 
 - Observation: what the persona felt.
@@ -1026,80 +1032,39 @@ The difference is useful synthetic ground truth for testing mood inference and r
 
 ---
 
-## 17. Required Lineage Convention Before Script Implementation
+## 17. Decision Lineage
 
-The current schema contains enough information to correlate the example through persona, execution, time, session, selected track, frame, and `decision_sequence`. However, some of these joins are temporal or implicit rather than explicit foreign-key relationships.
+The schema lets the worked example be correlated through persona, execution, time, session, selected track, frame, and `decision_sequence`, but several of those joins are temporal or implicit rather than explicit foreign keys. That is too fragile for causal queries: two track choices can happen in the same execution, and identifiers such as `intent_42_319` must never be parsed to discover relationships.
 
-That is acceptable for architecture exploration but too fragile for production-grade causal queries. Two track choices could occur in the same execution, and identifiers such as `intent_42_319` must not be parsed to discover relationships.
-
-Before implementing the scripts, adopt one explicit `decision_id` convention.
-
-### Recommended internal lineage
-
-Generate one deterministic `decision_id` for every behavioural decision:
+The architecture therefore defines one deterministic `decision_id` per behavioural decision ([architecture §5.5](./synthetic-listener-simulation-architecture.md#55-identifiers-and-decision-lineage)):
 
 ```text
-decision_id = hash(
-    simulation_id
-    + persona_id
-    + decision_sequence
-    + decision_kind
-)
+decision_id = hash(simulation_id + persona_id + decision_sequence + decision_kind)
 ```
 
-Carry it through internal records:
+It is assigned at stage 5 together with the frame and carried by every internal record of that decision. Observable telemetry keeps the public contract clean and correlates internally through `simulation_lineage.decision_sequence`.
 
-- `SimulationFrame`
-- `ListeningIntent`
-- `ExposureSet`
-- `CandidateEvaluation`
-- `OracleDecisionTrace`
-- `PlaybackSessionState`
-- `ListeningSession`
-- `StateTransition.source_refs`
-- `EmotionalStateObservation` through an explicit field or source event
+Until the schema adds `decision_id` explicitly, scripts must add at least these references:
 
-For observable telemetry, keep the public event contract clean. The existing `simulation_lineage.decision_sequence` can correlate synthetic events internally without exposing latent mood or oracle details as product payload.
-
-### Minimal explicit-reference additions
-
-If the next schema revision does not introduce a universal `decision_id`, add at least:
-
-| Entity | Recommended reference |
+| Entity | Reference that carries the lineage |
 | --- | --- |
-| `ListeningIntent` | `frame_id` |
+| `SimulationFrame` | `decision_id` |
+| `ListeningIntent` | `frame_id` (or `decision_id`) |
 | `ExposureSet` | `intent_id` |
-| `CandidateEvaluation` | `intent_id` or retain the path through `exposure_set_id` |
-| `OracleDecisionTrace` | `intent_id`, optional `session_id`, and selected `evaluation_id` |
-| `PlaybackSessionState` | `intent_id` or internal `decision_id` |
-| `ListeningSession` | `intent_id` or internal `decision_id` |
-| `EmotionalStateObservation` | Optional `session_id`/`decision_id`; keep `source_event_id` as well |
+| `CandidateEvaluation` | `exposure_set_id` (already present) |
+| `OracleDecisionTrace` | `frame_id` (already present), `intent_id`, optional `session_id`, selected `evaluation_id` |
+| `ListeningSession` | `intent_id` or `decision_id` |
+| `PlaybackSessionState` | `intent_id` or `decision_id` |
+| `StateTransition` | `decision_id` inside `source_refs` |
+| `EmotionalStateObservation` | Optional `session_id` or `decision_id`; keep `source_event_id` as well |
 
-No new business entity is strictly necessary. The requirement is an explicit causal identifier shared by the existing entities.
-
-### Example alignment rule
-
-The representative examples currently show an initial frame based on state version 193 and a pre-listening transition to version 194. The implementation must ensure that the frame referenced by the actual track-choice trace points to version 194, because the choice is made after pre-listening evolution.
+No new business entity is needed: the requirement is one explicit causal identifier shared by the existing entities.
 
 ---
 
 ## 18. Transaction Boundary for One Persona
 
-The due-persona work item is the atomic consistency boundary.
-
-Within one transaction or transactional-outbox operation:
-
-1. Read `PersonaStateCurrent` and retain `previous_state_version`.
-2. Resolve context and calculate deterministic outputs.
-3. Append new `ObservableEvent`, `StateTransition`, and `EmotionalStateObservation` records.
-4. Upsert `PersonTrackState`, optional `PersonArtistState`, active `PlaybackSessionState`, and `ListeningSession`.
-5. Update `PersonaStateCurrent` only where its version still equals `previous_state_version`.
-6. Increment the state version and schedule the next due time.
-7. Commit all records together.
-
-If the optimistic version check fails, discard calculated outputs and retry from the newly committed current state.
-
-Every append-only record requires a deterministic unique idempotency key. A retry must reproduce the same identifiers and must not duplicate telemetry or state history.
+The due-persona work item is the atomic consistency boundary; the exact steps, the optimistic version check, and the idempotency-key recipe are defined in [architecture §13](./synthetic-listener-simulation-architecture.md#13-transaction-ordering-and-idempotency). For the entities in this guide, that means everything produced in stages 3–12 is held in memory and written together at stage 13; if the version check fails, all of it is discarded and the work item is retried from the newly committed state, reproducing the same identifiers and random outcomes.
 
 ---
 
@@ -1109,10 +1074,11 @@ The entities suggest the following implementation modules.
 
 ```python
 def process_due_persona(simulation_id, execution_id, persona_id, logical_time):
+    # Stage 2 selected this persona; stages 3-12 run in memory, stage 13 commits.
     current = state_repository.get_for_update(simulation_id, persona_id)
     profile = profile_repository.get_version(persona_id, current.profile_version)
 
-    context = context_builder.build(
+    context = context_builder.build(  # stage 3
         profile=profile,
         current_state=current,
         schedule=schedule_repository.resolve(persona_id, logical_time),
@@ -1120,50 +1086,57 @@ def process_due_persona(simulation_id, execution_id, persona_id, logical_time):
         world_state=world_repository.resolve(profile, logical_time),
     )
 
-    pre_state_result = state_engine.evolve_before_decision(
+    pre_state_result = state_engine.evolve_before_decision(  # stage 4
         profile=profile,
         previous_state=current,
         context=context,
         logical_time=logical_time,
     )
 
-    decision_frame = frame_builder.build(
+    decision_frame = frame_builder.build(  # stage 5: evolved state, assigns decision_id
         profile=profile,
         state=pre_state_result.resulting_state,
         context=context,
     )
 
-    intent = intent_engine.evaluate(decision_frame)
+    intent = intent_engine.evaluate(decision_frame)  # stage 6
 
     if intent.selected_outcome == "no_listen":
-        return commit_no_listen_result(
+        return commit_no_listen_result(  # straight to stage 13
             current=current,
             pre_state_result=pre_state_result,
             intent=intent,
         )
 
-    exposure = exposure_engine.generate(
+    session = session_manager.open(  # stage 6: session_started + session_start observation
         frame=decision_frame,
         intent=intent,
+    )
+
+    exposure = exposure_engine.generate(  # stage 7
+        frame=decision_frame,
+        intent=intent,
+        session=session,
         policy=exposure_policy,
         catalogue=catalogue,
         music_memory=music_memory_repository.relevant(persona_id),
     )
 
-    evaluations = choice_engine.evaluate_candidates(
+    evaluations = choice_engine.evaluate_candidates(  # stage 8
         frame=decision_frame,
         intent=intent,
         exposure=exposure,
     )
     selected = choice_engine.sample(evaluations)
 
-    playback_result = playback_engine.start_or_continue(
+    playback_result = playback_engine.start_or_continue(  # stages 9-10
         selected=selected,
+        session=session,
         frame=decision_frame,
         intent=intent,
     )
 
-    post_state_result = state_engine.apply_music_response(
+    post_state_result = state_engine.apply_music_response(  # stage 11
         profile=profile,
         pre_listening_state=pre_state_result.resulting_state,
         track=selected.track,
@@ -1171,17 +1144,18 @@ def process_due_persona(simulation_id, execution_id, persona_id, logical_time):
         intent=intent,
     )
 
-    memory_updates = music_memory_engine.apply(
+    memory_updates = music_memory_engine.apply(  # stage 12
         exposure=exposure,
         playback_result=playback_result,
         emotional_response=post_state_result,
     )
 
-    return unit_of_work.commit_persona_result(
+    return unit_of_work.commit_persona_result(  # stage 13
         expected_state_version=current.state_version,
         context=context,
         frame=decision_frame,
         intent=intent,
+        session=session,
         exposure=exposure,
         evaluations=evaluations,
         playback=playback_result,
@@ -1196,87 +1170,19 @@ The modules should return typed domain objects. Repository code decides which ob
 
 ## 20. What Must Be Retained
 
-### Always retain
-
-- Versioned `SimulationConfig` and `SimulationInstance` lineage.
-- Versioned `PersonaProfile`.
-- Latest `PersonaStateCurrent`.
-- App-compatible `ObservableEvent` records.
-- Meaningful `StateTransition` records.
-- Policy-triggered `EmotionalStateObservation` records.
-- Completed `ListeningSession` summaries.
-- Sparse `PersonTrackState` and any enabled `PersonArtistState`.
-- `ExecutionBatch` metadata and periodic `Checkpoint` records.
-
-### Update in place with version checks
-
-- `PersonaStateCurrent`
-- Active `PlaybackSessionState`
-- Active `ListeningSession`
-- `PersonTrackState`
-- `PersonArtistState`
-
-### Retain according to audit policy
-
-- `ContextSnapshot`
-- `SimulationFrame`
-- `ListeningIntent`
-- Full `ExposureSet`
-- `CandidateEvaluation`
-- `OracleDecisionTrace`
-
-### Derive asynchronously
-
-- `DailyPersonaSummary`
-- `SimulationMetrics`
-- Affinity feature snapshots
-
-### Never materialise as complete Cartesian products
-
-- Persona by track.
-- Persona by artist.
-- Persona by persona affinity.
-- Tick by persona when nothing meaningful occurred.
+Retention is defined once in the architecture: the per-mode table in [§18](./synthetic-listener-simulation-architecture.md#18-audit-and-retention-policy) and the persistence summary in [§26](./synthetic-listener-simulation-architecture.md#26-final-persistence-summary). In entity terms: the stores of record are `PersonaStateCurrent`, sparse memory, `ObservableEvent`, `StateTransition`, `EmotionalStateObservation`, and `ListeningSession`; the decision-runtime entities (`ContextSnapshot`, `SimulationFrame`, `ListeningIntent`, `ExposureSet`, `CandidateEvaluation`, `OracleDecisionTrace`) survive only as the audit mode allows.
 
 ---
 
 ## 21. Implementation Invariants
 
-The initial scripts should enforce these conditions from the beginning:
-
-1. Exactly one `PersonaStateCurrent` exists per active `(simulation_id, persona_id)`.
-2. State versions increase monotonically in committed transition order.
-3. The decision frame references the exact state version used by intent and choice.
-4. A synthetic observable event always contains simulation lineage and `data_origin = synthetic`.
-5. A `track_started` event cannot occur before the required served exposure.
-6. Active `PlaybackSessionState.current_track_id` matches the latest committed playback event for that session.
-7. A session-start emotional observation is captured before playback when the policy requires it.
-8. Latent mood never leaks into observable telemetry unless represented as a simulated explicit check-in.
-9. Sparse music memory is created only after qualifying contact.
-10. A retried decision reproduces the same deterministic identifiers and random outcome.
-11. Listening simulation never reads `SocialEdge` or `AffinityScore` in architecture version 2.0.
-12. Analytics never mutates canonical telemetry, transitions, or observations.
+The invariants the scripts must enforce from the first implementation are listed in [architecture §23](./synthetic-listener-simulation-architecture.md#23-data-integrity-invariants). The ones this guide's examples exercise most directly are: the frame carries the evolved `state_version` (invariant 3), one `decision_id` per decision (4), exposure inside an open session (7), no `track_started` before its served exposure (8), the `session_start` observation before playback (9), and identical identifiers and random outcomes on retry (16).
 
 ---
 
 ## 22. Practical Implementation Order
 
-For the first executable vertical slice, implement only one persona, a small catalogue, and one due decision while preserving all contract boundaries.
-
-1. Implement Pydantic models for shared value objects and core entity contracts.
-2. Implement repositories for `PersonaProfile`, `PersonaStateCurrent`, schedules, life events, world state, tracks, and policy.
-3. Implement `SimulationInstance`, `ExecutionBatch`, the logical clock, and deterministic decision sequencing.
-4. Implement context building and pre-listening state evolution.
-5. Emit `StateTransition` and `EmotionalStateObservation` correctly.
-6. Implement listen/no-listen intent.
-7. Implement a small exposure and candidate-choice model.
-8. Implement `PlaybackSessionState`, `ObservableEvent`, and `ListeningSession`.
-9. Apply post-listening response and sparse music-memory updates.
-10. Commit one persona atomically with optimistic versioning and idempotency.
-11. Implement the current-track and mood-explanation queries from Section 16.
-12. Add deterministic replay and statistical tests before scaling the population.
-
-This produces a complete, inspectable path before adding more psychological parameters, more sophisticated ranking, parallel workers, or 20,000 personas.
+The single implementation order, including the first vertical slice and the first-version entity list, is defined in [architecture §25](./synthetic-listener-simulation-architecture.md#25-implementation-order).
 
 ---
 
@@ -1291,7 +1197,7 @@ stable identity
 + world and application context
 + music catalogue and sparse memory
     -> current predecision mood
-    -> listening intent
+    -> listening intent (opens a session when it selects listen)
     -> exposed candidates
     -> selected track or no action
     -> observable playback behaviour
