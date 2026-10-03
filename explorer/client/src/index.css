@@ -1,0 +1,63 @@
+/* Design tokens: a calm, Stripe-like dashboard palette. */
+:root {
+  --bg: #f6f8fa;
+  --surface: #ffffff;
+  --surface-hover: #f7fafc;
+  --border: #e3e8ee;
+  --border-strong: #d5dbe1;
+  --text: #1a1f36;
+  --text-muted: #697386;
+  --text-faint: #a3acb9;
+  --accent: #635bff;
+  --accent-strong: #5851ec;
+  --accent-soft: #efeefe;
+  --good: #09825d;
+  --good-soft: #d7f7e7;
+  --bad: #df1b41;
+  --bad-soft: #ffe7ec;
+  --warn: #a94d05;
+  --warn-soft: #fff1d6;
+  --radius: 8px;
+  --shadow-sm: 0 1px 1px rgba(0, 0, 0, 0.03), 0 2px 5px rgba(60, 66, 87, 0.08);
+  --shadow-lg: 0 15px 35px rgba(50, 50, 93, 0.12), 0 5px 15px rgba(0, 0, 0, 0.08);
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  color-scheme: light;
+  font: 14px/1.45 var(--sans);
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--bg);
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
