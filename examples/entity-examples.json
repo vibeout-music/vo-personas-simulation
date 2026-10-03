@@ -1,6 +1,6 @@
 {
   "catalog_version": "2.0",
-  "description": "Representative examples for every logical entity in the VO Personas Simulation architecture. These examples illustrate contracts and are not intended to be stored as one file per persona.",
+  "description": "Representative examples for every logical entity in the Vibeout Personas Simulation architecture. These examples illustrate contracts and are not intended to be stored as one file per persona.",
   "schema_catalog": "../schemas/entity-contracts.schema.json",
   "examples": {
     "SimulationConfig": {
@@ -373,17 +373,17 @@
     },
     "SimulationFrame": {
       "entity_type": "SimulationFrame",
-      "frame_id": "frame_42_193",
+      "frame_id": "frame_42_194_decision_319",
       "simulation_id": "sim_2026_09_main",
       "execution_id": "exec_2026_09_03_0800",
       "persona_id": "persona_000042",
-      "logical_time": "2026-09-03T08:00:00Z",
+      "logical_time": "2026-09-03T08:01:00Z",
       "profile_ref": "persona_000042@1",
-      "state_version": 193,
+      "state_version": 194,
       "context_id": "context_42_20260903_0800",
       "active_life_event_ids": ["life_event_deadline_42"],
       "relevant_track_state_ids": ["persona_000042:track_city_lights"],
-      "input_hash": "sha256:frame-example"
+      "input_hash": "sha256:frame-42-194-decision-319"
     },
     "ListeningIntent": {
       "entity_type": "ListeningIntent",
@@ -499,7 +499,7 @@
       "simulation_id": "sim_2026_09_main",
       "persona_id": "persona_000042",
       "status": "completed",
-      "started_at": "2026-09-03T08:01:05Z",
+      "started_at": "2026-09-03T08:01:01Z",
       "ended_at": "2026-09-03T08:29:48Z",
       "source_surface": "home_recommendations",
       "primary_intent": "emotion_regulation",
@@ -576,7 +576,7 @@
       "persona_id": "persona_000042",
       "decision_type": "track_choice",
       "decided_at": "2026-09-03T08:01:09Z",
-      "frame_id": "frame_42_193",
+      "frame_id": "frame_42_194_decision_319",
       "model_version": "track_choice_1.0.0",
       "random_stream": "track_choice",
       "random_draw": 0.4172,

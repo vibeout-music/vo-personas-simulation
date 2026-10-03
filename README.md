@@ -47,13 +47,15 @@ At a given simulation time, listening behaviour emerges from four layers:
 ```text
 SimulationFrame(t) =
     PersonaProfile
-  + PersonaStateCurrent(t - 1)
+  + PersonaStateCurrent evolved to t (after the pre-listening transition)
   + PersonaSchedule(t)
   + ActiveLifeEvents(t)
   + WorldState(location, t)
   + RelevantMusicMemory(t)
   + ApplicationContext(t)
 ```
+
+The frame is assembled after pre-listening state evolution, so decisions use the evolved state ([architecture §12](./docs/synthetic-listener-simulation-architecture.md#12-canonical-listening-pipeline)).
 
 Personas are stateful domain entities. They are not individual folders, independent processes, or autonomous LLM agents by default. Behavioural implementations may use rules, probability distributions, state machines, learned models, or optional AI components behind explicit versioned interfaces.
 
@@ -340,8 +342,8 @@ vo-personas-simulation/
 │   └── generate_personas.py
 ├── docs/
 │   ├── vibeout-synthetic-personas.md
-│   ├── synthetic-listener-simulation-concept-map.md
-│   └── synthetic-listener-simulation-architecture.md
+│   ├── synthetic-listener-simulation-architecture.md
+│   └── entity-usage-and-listening-simulation-guide.md
 ├── src/vo_personas_simulation/
 │   ├── domain/
 │   ├── generation/
@@ -445,21 +447,12 @@ python3 -m unittest tests/unit/test_rules.py tests/unit/test_catalog.py tests/un
 
 ## Development Roadmap
 
-1. Implement the typed domain models and generate the published JSON contracts.
-2. Define the PostgreSQL operational and append-only table mappings.
-3. Generate a small deterministic population fixture.
-4. Implement continuous simulation instances, execution batches, the clock, and scheduler.
-5. Implement state evolution and emotional-history recording.
-6. Implement exposure, choice, playback, and application-compatible telemetry.
-7. Add checkpoints, deterministic replay, and audit modes.
-8. Build analytical projections and validation reports.
-9. Scale-test 20,000 persistent personas.
-10. Implement the independent affinity and matching pipeline.
+The single implementation order (first vertical slice, then the full pipeline, scale, and affinity) is defined in the [architecture, §25](./docs/synthetic-listener-simulation-architecture.md#25-implementation-order). The interim, file-based mode used today is described in [§27](./docs/synthetic-listener-simulation-architecture.md#27-current-iteration).
 
 ## Documentation and Contracts
 
-- [Conceptual map](./docs/synthetic-listener-simulation-concept-map.md)
-- [Data architecture and execution pipeline](./docs/synthetic-listener-simulation-architecture.md)
+- [Architecture and execution pipeline](./docs/synthetic-listener-simulation-architecture.md): what the system is and why, with the canonical pipeline stages 0–15
+- [Entity usage and listening simulation guide](./docs/entity-usage-and-listening-simulation-guide.md): how each entity is read and written, stage by stage, with a worked example
 - [Synthetic persona model](./docs/vibeout-synthetic-personas.md)
 - [Entity JSON Schema catalog](./schemas/entity-contracts.schema.json)
 - [Persona field template](./schemas/persona-unified-schema.json)
